@@ -35,6 +35,22 @@ pub fn suffix(ns: &str, db: &str, tb: &str) -> Vec<u8> {
 	k
 }
 
+pub fn field_prefix(ns: &str, db: &str, tb: &str, fd: &str) -> Vec<u8> {
+	let mut k = super::all::new(ns, db, tb).encode().unwrap();
+	k.extend_from_slice(&[b'!', b'f', b'd']);
+	k.extend_from_slice(fd.as_bytes());
+	k.push(0x00);
+	k
+}
+
+pub fn field_suffix(ns: &str, db: &str, tb: &str, fd: &str) -> Vec<u8> {
+	let mut k = super::all::new(ns, db, tb).encode().unwrap();
+	k.extend_from_slice(&[b'!', b'f', b'd']);
+	k.extend_from_slice(fd.as_bytes());
+	k.push(0xFF);
+	k
+}
+
 impl KeyRequirements for Fd<'_> {
 	fn key_category(&self) -> KeyCategory {
 		KeyCategory::TableField

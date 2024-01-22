@@ -32,8 +32,11 @@ impl RemoveFieldStatement {
 		run.clear_cache();
 		// Delete the definition
 		let fd = self.name.to_string();
-		let key = crate::key::table::fd::new(opt.ns(), opt.db(), &self.what, &fd);
-		run.del(key).await?;
+		let start =
+			crate::key::table::fd::field_prefix(opt.ns(), opt.db(), dbg!(&self.what), dbg!(&fd));
+		let end =
+			crate::key::table::fd::field_suffix(opt.ns(), opt.db(), dbg!(&self.what), dbg!(&fd));
+		run.delr(start..end, u32::MAX).await?;
 		// Clear the cache
 		let key = crate::key::table::fd::prefix(opt.ns(), opt.db(), &self.what);
 		run.clr(key).await?;

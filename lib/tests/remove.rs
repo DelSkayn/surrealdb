@@ -161,6 +161,53 @@ async fn should_not_error_when_remove_if_exists() -> Result<(), Error> {
 	Ok(())
 }
 
+#[tokio::test]
+async fn remove_statement_field() -> Result<(), Error> {
+	let up_sql = "
+		DEFINE TABLE foo SCHEMAFULL;
+		DEFINE FIELD bar ON foo TYPE array<number> | set<bool>;
+		INFO FOR TABLE foo;
+	";
+	let dbs = new_ds().await?;
+	let ses = Session::owner().with_ns("test").with_db("test");
+	let res = &mut dbs.execute(up_sql, &ses, None).await?;
+	res.remove(0).result.unwrap();
+	res.remove(0).result.unwrap();
+	let info = res.remove(0).result.unwrap();
+	let val = Value::parse(
+		r#"{
+			events: {  },
+			fields: {
+				bar: 'DEFINE FIELD bar ON foo TYPE array<number> | set<bool> PERMISSIONS FULL',
+				"bar[*]": 'DEFINE FIELD bar[*] ON foo TYPE number | bool PERMISSIONS FULL'
+			},
+			indexes: {  },
+			lives: {  },
+			tables: {  }
+		}
+		"#,
+	);
+	assert_eq!(info, val);
+	let down_sql = "
+		REMOVE FIELD bar ON foo;
+		INFO FOR TABLE foo;
+	";
+	let res = &mut dbs.execute(down_sql, &ses, None).await?;
+	res.remove(0).result.unwrap();
+	let info = res.remove(0).result.unwrap();
+	let val = Value::parse(
+		r#"{
+			events: {  },
+			fields: { },
+			indexes: {  },
+			lives: {  },
+			tables: {  }
+		}
+		"#,
+	);
+	assert_eq!(info, val);
+	Ok(())
+}
 //
 // Permissions
 //
