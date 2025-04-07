@@ -1,11 +1,17 @@
 use crate::cli::CF;
 use crate::err::Error;
 use clap::Args;
+use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
-use surrealdb::dbs::capabilities::{Capabilities, FuncTarget, NetTarget, Targets};
+use surrealdb::dbs::capabilities::{
+	ArbitraryQueryTarget, Capabilities, ExperimentalTarget, FuncTarget, MethodTarget, NetTarget,
+	RouteTarget, Targets,
+};
+use surrealdb::dbs::Session;
 use surrealdb::kvs::Datastore;
+use surrealdb::opt::capabilities::Capabilities as SdkCapabilities;
 
 #[derive(Args, Debug)]
 pub struct StartCommandDbsOptions {
@@ -32,10 +38,14 @@ pub struct StartCommandDbsOptions {
 	#[arg(env = "SURREAL_TEMPORARY_DIRECTORY", long = "temporary-directory")]
 	#[arg(value_parser = super::cli::validator::dir_exists)]
 	temporary_directory: Option<PathBuf>,
+	#[arg(help = "Path to a SurrealQL file that will be imported when starting the server")]
+	#[arg(env = "SURREAL_IMPORT_FILE", long = "import-file")]
+	#[arg(value_parser = super::cli::validator::file_exists)]
+	import_file: Option<PathBuf>,
 }
 
 #[derive(Args, Debug)]
-struct DbsCapabilities {
+pub struct DbsCapabilities {
 	//
 	// Allow
 	//
@@ -67,6 +77,26 @@ Function names must be in the form <family>[::<name>]. For example:
 	#[arg(value_parser = super::cli::validator::func_targets)]
 	allow_funcs: Option<Targets<FuncTarget>>,
 
+	#[arg(hide = true)]
+	#[arg(env = "SURREAL_CAPS_ALLOW_EXPERIMENTAL", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::experimental_targets)]
+	allow_experimental: Option<Targets<ExperimentalTarget>>,
+
+	#[arg(
+		help = "Allow execution of arbitrary queries by certain user groups except when specifically denied.",
+		long_help = r#"Allow execution of arbitrary queries by certain user groups except when specifically denied. Alternatively, you can provide a comma-separated list of user groups to allow
+Specifically denied user groups prevail over any other allowed user group.
+User groups must be one of "guest", "record" or "system".
+"#
+	)]
+	#[arg(env = "SURREAL_CAPS_ALLOW_ARBITRARY_QUERY", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::query_arbitrary_targets)]
+	allow_arbitrary_query: Option<Targets<ArbitraryQueryTarget>>,
+
 	#[arg(
 		help = "Allow all outbound network connections except for network targets that are specifically denied. Alternatively, you can provide a comma-separated list of network targets to allow",
 		long_help = r#"Allow all outbound network connections except for network targets that are specifically denied. Alternatively, you can provide a comma-separated list of network targets to allow
@@ -82,6 +112,26 @@ Targets must be in the form of <host>[:<port>], <ipv4|ipv6>[/<mask>]. For exampl
 	#[arg(default_missing_value_os = "", num_args = 0..)]
 	#[arg(value_parser = super::cli::validator::net_targets)]
 	allow_net: Option<Targets<NetTarget>>,
+
+	#[arg(
+		help = "Allow all RPC methods to be called except for routes that are specifically denied. Alternatively, you can provide a comma-separated list of RPC methods to allow."
+	)]
+	#[arg(env = "SURREAL_CAPS_ALLOW_RPC", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(default_value_os = "")] // Allow all RPC methods by default
+	#[arg(value_parser = super::cli::validator::method_targets)]
+	allow_rpc: Option<Targets<MethodTarget>>,
+
+	#[arg(
+		help = "Allow all HTTP routes to be requested except for routes that are specifically denied. Alternatively, you can provide a comma-separated list of HTTP routes to allow."
+	)]
+	#[arg(env = "SURREAL_CAPS_ALLOW_HTTP", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(default_value_os = "")] // Allow all HTTP routes by default
+	#[arg(value_parser = super::cli::validator::route_targets)]
+	allow_http: Option<Targets<RouteTarget>>,
 
 	//
 	// Deny
@@ -114,6 +164,26 @@ Function names must be in the form <family>[::<name>]. For example:
 	#[arg(value_parser = super::cli::validator::func_targets)]
 	deny_funcs: Option<Targets<FuncTarget>>,
 
+	#[arg(hide = true)]
+	#[arg(env = "SURREAL_CAPS_DENY_EXPERIMENTAL", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::experimental_targets)]
+	deny_experimental: Option<Targets<ExperimentalTarget>>,
+
+	#[arg(
+		help = "Deny execution of arbitrary queries by certain user groups except when specifically allowed.",
+		long_help = r#"Deny execution of arbitrary queries by certain user groups except when specifically allowed. Alternatively, you can provide a comma-separated list of user groups to deny
+Specifically allowed user groups prevail over a general denial of user group.
+User groups must be one of "guest", "record" or "system".
+"#
+	)]
+	#[arg(env = "SURREAL_CAPS_DENY_ARBITRARY_QUERY", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::query_arbitrary_targets)]
+	deny_arbitrary_query: Option<Targets<ArbitraryQueryTarget>>,
+
 	#[arg(
 		help = "Deny all outbound network connections except for network targets that are specifically allowed. Alternatively, you can provide a comma-separated list of network targets to deny",
 		long_help = r#"Deny all outbound network connections except for network targets that are specifically allowed. Alternatively, you can provide a comma-separated list of network targets to deny.
@@ -129,6 +199,24 @@ Targets must be in the form of <host>[:<port>], <ipv4|ipv6>[/<mask>]. For exampl
 	#[arg(default_missing_value_os = "", num_args = 0..)]
 	#[arg(value_parser = super::cli::validator::net_targets)]
 	deny_net: Option<Targets<NetTarget>>,
+
+	#[arg(
+		help = "Deny all RPC methods from being called except for methods that are specifically allowed. Alternatively, you can provide a comma-separated list of RPC methods to deny."
+	)]
+	#[arg(env = "SURREAL_CAPS_DENY_RPC", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::method_targets)]
+	deny_rpc: Option<Targets<MethodTarget>>,
+
+	#[arg(
+		help = "Deny all HTTP routes from being requested except for routes that are specifically allowed. Alternatively, you can provide a comma-separated list of HTTP routes to deny."
+	)]
+	#[arg(env = "SURREAL_CAPS_DENY_HTTP", long)]
+	// If the arg is provided without value, then assume it's "", which gets parsed into Targets::All
+	#[arg(default_missing_value_os = "", num_args = 0..)]
+	#[arg(value_parser = super::cli::validator::route_targets)]
+	deny_http: Option<Targets<RouteTarget>>,
 }
 
 impl DbsCapabilities {
@@ -210,6 +298,66 @@ impl DbsCapabilities {
 		self.allow_net.clone().unwrap_or(Targets::None)
 	}
 
+	fn get_allow_rpc(&self) -> Targets<MethodTarget> {
+		// If there was a global deny, we allow if there is a general allow or some specific allows for RPC
+		if self.deny_all {
+			match &self.allow_rpc {
+				Some(Targets::Some(_)) => return self.allow_rpc.clone().unwrap(), // We already checked for Some
+				Some(Targets::All) => return Targets::All,
+				Some(_) => return Targets::None,
+				None => return Targets::None,
+			}
+		}
+
+		// If there was a general deny for RPC, we allow if there are specific allows for RPC methods
+		if let Some(Targets::All) = self.deny_rpc {
+			match &self.allow_rpc {
+				Some(Targets::Some(_)) => return self.allow_rpc.clone().unwrap(), // We already checked for Some
+				Some(_) => return Targets::None,
+				None => return Targets::None,
+			}
+		}
+
+		// If there are no high level denies but there is a global allow, we allow RPC
+		if self.allow_all {
+			return Targets::All;
+		}
+
+		// If there are no high level denies, we allow the provided RPC methods
+		// If nothing was provided, we allow RPC by default (Targets::All)
+		self.allow_rpc.clone().unwrap_or(Targets::All) // RPC is enabled by default for the server
+	}
+
+	fn get_allow_http(&self) -> Targets<RouteTarget> {
+		// If there was a global deny, we allow if there is a general allow or some specific allows for HTTP
+		if self.deny_all {
+			match &self.allow_http {
+				Some(Targets::Some(_)) => return self.allow_http.clone().unwrap(), // We already checked for Some
+				Some(Targets::All) => return Targets::All,
+				Some(_) => return Targets::None,
+				None => return Targets::None,
+			}
+		}
+
+		// If there was a general deny for HTTP, we allow if there are specific allows for HTTP routes
+		if let Some(Targets::All) = self.deny_http {
+			match &self.allow_http {
+				Some(Targets::Some(_)) => return self.allow_http.clone().unwrap(), // We already checked for Some
+				Some(_) => return Targets::None,
+				None => return Targets::None,
+			}
+		}
+
+		// If there are no high level denies but there is a global allow, we allow HTTP
+		if self.allow_all {
+			return Targets::All;
+		}
+
+		// If there are no high level denies, we allow the provided HTTP routes
+		// If nothing was provided, we allow HTTP by default (Targets::All)
+		self.allow_http.clone().unwrap_or(Targets::All) // HTTP is enabled by default for the server
+	}
+
 	fn get_deny_funcs(&self) -> Targets<FuncTarget> {
 		// Allowed functions already consider a global deny and a general deny for functions
 		// On top of what is explicitly allowed, we deny what is specifically denied
@@ -233,17 +381,85 @@ impl DbsCapabilities {
 	fn get_deny_all(&self) -> bool {
 		self.deny_all
 	}
+
+	fn get_deny_rpc(&self) -> Targets<MethodTarget> {
+		// Allowed RPC methods already consider a global deny and a general deny for RPC
+		// On top of what is explicitly allowed, we deny what is specifically denied
+		match &self.deny_rpc {
+			Some(Targets::Some(_)) => self.deny_rpc.clone().unwrap(), // We already checked for Some
+			Some(_) => Targets::None,
+			None => Targets::None,
+		}
+	}
+
+	fn get_deny_http(&self) -> Targets<RouteTarget> {
+		// Allowed HTTP routes already consider a global deny and a general deny for HTTP
+		// On top of what is explicitly allowed, we deny what is specifically denied
+		match &self.deny_http {
+			Some(Targets::Some(_)) => self.deny_http.clone().unwrap(), // We already checked for Some
+			Some(_) => Targets::None,
+			None => Targets::None,
+		}
+	}
+
+	fn get_allow_experimental(&self) -> Targets<ExperimentalTarget> {
+		match &self.allow_experimental {
+			Some(t @ Targets::Some(_)) => t.clone(),
+			Some(_) => Targets::None,
+			None => Targets::None,
+		}
+	}
+
+	fn get_deny_experimental(&self) -> Targets<ExperimentalTarget> {
+		match &self.deny_experimental {
+			Some(t @ Targets::Some(_)) => t.clone(),
+			Some(_) => Targets::None,
+			None => Targets::None,
+		}
+	}
+
+	fn get_allow_arbitrary_query(&self) -> Targets<ArbitraryQueryTarget> {
+		match &self.allow_arbitrary_query {
+			Some(t @ Targets::Some(_)) => t.clone(),
+			Some(_) => Targets::None,
+			None => Targets::All,
+		}
+	}
+
+	fn get_deny_arbitrary_query(&self) -> Targets<ArbitraryQueryTarget> {
+		match &self.deny_arbitrary_query {
+			Some(t @ Targets::Some(_)) => t.clone(),
+			Some(_) => Targets::None,
+			None => Targets::None,
+		}
+	}
+
+	pub fn into_cli_capabilities(self) -> Capabilities {
+		merge_capabilities(SdkCapabilities::all().into(), self)
+	}
+}
+
+fn merge_capabilities(initial: Capabilities, caps: DbsCapabilities) -> Capabilities {
+	initial
+		.with_scripting(caps.get_scripting())
+		.with_guest_access(caps.get_allow_guests())
+		.with_functions(caps.get_allow_funcs())
+		.without_functions(caps.get_deny_funcs())
+		.with_network_targets(caps.get_allow_net())
+		.without_network_targets(caps.get_deny_net())
+		.with_rpc_methods(caps.get_allow_rpc())
+		.without_rpc_methods(caps.get_deny_rpc())
+		.with_http_routes(caps.get_allow_http())
+		.without_http_routes(caps.get_deny_http())
+		.with_experimental(caps.get_allow_experimental())
+		.without_experimental(caps.get_deny_experimental())
+		.with_arbitrary_query(caps.get_allow_arbitrary_query())
+		.without_arbitrary_query(caps.get_deny_arbitrary_query())
 }
 
 impl From<DbsCapabilities> for Capabilities {
 	fn from(caps: DbsCapabilities) -> Self {
-		Capabilities::default()
-			.with_scripting(caps.get_scripting())
-			.with_guest_access(caps.get_allow_guests())
-			.with_functions(caps.get_allow_funcs())
-			.without_functions(caps.get_deny_funcs())
-			.with_network_targets(caps.get_allow_net())
-			.without_network_targets(caps.get_deny_net())
+		merge_capabilities(Default::default(), caps)
 	}
 }
 
@@ -255,6 +471,7 @@ pub async fn init(
 		unauthenticated,
 		capabilities,
 		temporary_directory,
+		import_file,
 	}: StartCommandDbsOptions,
 ) -> Result<Datastore, Error> {
 	// Get local copy of options
@@ -293,6 +510,12 @@ pub async fn init(
 		.with_capabilities(capabilities);
 	// Ensure the storage version is up-to-date to prevent corruption
 	dbs.check_version().await?;
+	// Import file at start, if provided
+	if let Some(file) = import_file {
+		info!("Importing data from file: {:?}", file);
+		let sql = fs::read_to_string(file)?;
+		dbs.import(&sql, &Session::owner()).await?;
+	}
 	// Setup initial server auth credentials
 	if let (Some(user), Some(pass)) = (opt.user.as_ref(), opt.pass.as_ref()) {
 		dbs.initialise_credentials(user, pass).await?;
@@ -320,10 +543,10 @@ pub async fn fix(path: String) -> Result<(), Error> {
 mod tests {
 	use std::str::FromStr;
 
-	use surrealdb::dbs::Session;
 	use surrealdb::iam::verify::verify_root_creds;
 	use surrealdb::kvs::{LockType::*, TransactionType::*};
 	use test_log::test;
+	use wiremock::matchers::path;
 	use wiremock::{matchers::method, Mock, MockServer, ResponseTemplate};
 
 	use super::*;
@@ -401,6 +624,19 @@ mod tests {
 			s.register(get).await;
 			s.register(head).await;
 
+			s
+		};
+
+		let server3 = {
+			let s = MockServer::start().await;
+			let redirect_res = ResponseTemplate::new(301).append_header("Location", server1.uri());
+
+			let redirect = Mock::given(method("GET"))
+				.and(path("redirect"))
+				.respond_with(redirect_res)
+				.expect(1);
+
+			s.register(redirect).await;
 			s
 		};
 
@@ -613,6 +849,24 @@ mod tests {
 				true,
 				"SUCCESS".to_string(),
 			),
+			(
+				// Ensure redirect fails
+				Datastore::new("memory").await.unwrap().with_capabilities(
+					Capabilities::default()
+						.with_functions(Targets::<FuncTarget>::All)
+						.with_network_targets(Targets::<NetTarget>::Some(
+							[NetTarget::from_str(&server3.address().to_string()).unwrap()
+							].into(),
+						))
+						.without_network_targets(Targets::<NetTarget>::Some(
+							[NetTarget::from_str(&server1.address().to_string()).unwrap()].into(),
+						)),
+				),
+				Session::owner(),
+				format!("RETURN http::get('{}/redirect')", server3.uri()),
+				false,
+				format!("here was an error processing a remote HTTP request: error following redirect for url ({}/redirect)",server3.uri()),
+			),
 		];
 
 		for (idx, (ds, sess, query, succeeds, contains)) in cases.into_iter().enumerate() {
@@ -647,5 +901,6 @@ mod tests {
 
 		server1.verify().await;
 		server2.verify().await;
+		server3.verify().await;
 	}
 }

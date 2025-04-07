@@ -6,12 +6,17 @@ mod cli_integration {
 	use assert_fs::prelude::{FileTouch, FileWriteStr, PathChild};
 	use chrono::Duration as ChronoDuration;
 	use chrono::Utc;
+	#[cfg(unix)]
 	use common::Format;
+	#[cfg(unix)]
 	use common::Socket;
 	use jsonwebtoken::{encode, Algorithm, EncodingKey, Header};
 	use serde::{Deserialize, Serialize};
+	#[cfg(unix)]
 	use serde_json::json;
 	use std::fs::File;
+	use std::io::Write;
+	#[cfg(unix)]
 	use std::time;
 	use std::time::Duration;
 	use surrealdb::fflags::FFLAGS;
@@ -24,32 +29,32 @@ mod cli_integration {
 
 	#[test]
 	fn version_command() {
-		assert!(common::run("version").output().is_ok());
+		common::run("version").output().unwrap();
 	}
 
 	#[test]
 	fn version_flag_short() {
-		assert!(common::run("-V").output().is_ok());
+		common::run("-V").output().unwrap();
 	}
 
 	#[test]
 	fn version_flag_long() {
-		assert!(common::run("--version").output().is_ok());
+		common::run("--version").output().unwrap();
 	}
 
 	#[test]
 	fn help_command() {
-		assert!(common::run("help").output().is_ok());
+		common::run("help").output().unwrap();
 	}
 
 	#[test]
 	fn help_flag_short() {
-		assert!(common::run("-h").output().is_ok());
+		common::run("-h").output().unwrap();
 	}
 
 	#[test]
 	fn help_flag_long() {
-		assert!(common::run("--help").output().is_ok());
+		common::run("--help").output().unwrap();
 	}
 
 	#[test]
@@ -97,8 +102,10 @@ mod cli_integration {
 
 		info!("* Export to stdout");
 		{
-			let args = format!("export --conn http://{addr} {creds} --ns {ns} --db {db} -");
-			let output = common::run(&args).output().expect("failed to run stdout export: {args}");
+			let args = format!("export --conn http://{addr} {creds} --ns {ns} --db {db} - --only --tables thing --records");
+			let output = common::run(&args)
+				.output()
+				.unwrap_or_else(|_| panic!("failed to run stdout export: {args}"));
 			assert!(output.contains("DEFINE TABLE thing TYPE ANY SCHEMALESS PERMISSIONS NONE;"));
 			assert!(output.contains("INSERT [ { id: thing:one } ];"));
 		}
@@ -108,7 +115,9 @@ mod cli_integration {
 			let exported = common::tmp_file("exported.surql");
 			let args =
 				format!("export --conn http://{addr} {creds} --ns {ns} --db {db} {exported}");
-			common::run(&args).output().expect("failed to run file export: {args}");
+			common::run(&args)
+				.output()
+				.unwrap_or_else(|_| panic!("failed to run file export: {args}"));
 			exported
 		};
 
@@ -118,7 +127,7 @@ mod cli_integration {
 		{
 			let args =
 				format!("import --conn http://{addr} {creds} --ns {ns} --db {db2} {exported}");
-			common::run(&args).output().expect("failed to run import: {args}");
+			common::run(&args).output().unwrap_or_else(|_| panic!("failed to run import: {args}"));
 		}
 
 		info!("* Query from the import (pretty-printed this time)");
@@ -248,7 +257,7 @@ mod cli_integration {
 		.await
 		.unwrap();
 
-		std::thread::sleep(std::time::Duration::from_millis(5000));
+		std::thread::sleep(std::time::Duration::from_millis(10000));
 		let output = server.kill().output().err().unwrap();
 
 		// Test the crt/key args but the keys are self signed so don't actually connect.
@@ -480,6 +489,21 @@ mod cli_integration {
 					.unwrap_err()
 					.contains("Database is needed for authentication but it was not provided"),
 				"auth level database requires providing a namespace and database: {output:?}"
+			);
+		}
+
+		info!("* Pass auth level without providing credentials");
+		{
+			let args = format!("sql --conn http://{addr} --ns {ns} --auth-level database");
+			let output = common::run(&args)
+				.input(format!("USE NS `{ns}` DB `{db}`; INFO FOR DB;\n").as_str())
+				.output();
+			assert!(
+				output
+					.clone()
+					.unwrap_err()
+					.contains("error: the following required arguments were not provided:\n  --password <PASSWORD>\n  --username <USERNAME>"),
+				"auth level database requires credentials: {output:?}"
 			);
 		}
 		server.finish().unwrap();
@@ -868,6 +892,118 @@ mod cli_integration {
 	}
 
 	#[test(tokio::test)]
+	async fn with_import_file() {
+		let ns = Ulid::new();
+		let db = Ulid::new();
+
+		info!("* Import and reimport root-level file");
+		{
+			// Start the server with an import file containing the following query:
+			let query = r#"DEFINE ACCESS OVERWRITE admin ON ROOT TYPE JWT URL "https://www.surrealdb.com/jwks.json";"#;
+			let import_file = common::tmp_file("import.surql");
+			let mut file = File::create(&import_file).unwrap();
+			file.write_all(query.as_bytes()).unwrap();
+			let (addr, mut server) =
+				common::start_server_with_import_file(&import_file).await.unwrap();
+			// Define connection arguments.
+			let args = format!("sql --conn http://{addr} --user {USER} --pass {PASS}");
+			// Verify that the file has been imported correctly.
+			let output = common::run(&args).input("INFO FOR ROOT").output().expect("success");
+			assert!(output.contains(
+				r#"DEFINE ACCESS admin ON ROOT TYPE JWT URL 'https://www.surrealdb.com/jwks.json'"#
+			));
+			// Modify the resource that was imported.
+			common::run(&args)
+				.input("DEFINE ACCESS OVERWRITE admin ON ROOT TYPE JWT URL 'https://www.example.com/jwks.json'")
+				.output()
+				.expect("success");
+			// Verify that the resource has been modified correctly.
+			let output = common::run(&args).input("INFO FOR ROOT").output().expect("success");
+			assert!(output.contains(
+				r#"DEFINE ACCESS admin ON ROOT TYPE JWT URL 'https://www.example.com/jwks.json'"#
+			));
+			// Restart the server.
+			server.finish().unwrap();
+			let (addr, mut server) =
+				common::start_server_with_import_file(&import_file).await.unwrap();
+			// Verify that the resource has been recreated correctly.
+			let args = format!("sql --conn http://{addr} --user {USER} --pass {PASS}");
+			let output = common::run(&args).input("INFO FOR ROOT").output().expect("success");
+			assert!(output.contains(
+				r#"DEFINE ACCESS admin ON ROOT TYPE JWT URL 'https://www.surrealdb.com/jwks.json'"#
+			));
+			server.finish().unwrap();
+		}
+
+		info!("* Multi-level import file");
+		{
+			// Start the server with an import file containing the following query:
+			let query = format!(
+				r#"
+				USE NS `{ns}`;
+				DEFINE USER test ON NAMESPACE PASSWORD "secret";
+				USE NS `{ns}` DB `{db}`;
+				CREATE user:1;
+			"#
+			);
+			let import_file = common::tmp_file("import.surql");
+			let mut file = File::create(&import_file).unwrap();
+			file.write_all(query.as_bytes()).unwrap();
+			let (addr, mut server) =
+				common::start_server_with_import_file(&import_file).await.unwrap();
+			// Verify that the file has been imported correctly.
+			let args =
+				format!("sql --conn http://{addr} --user {USER} --pass {PASS} --namespace {ns}");
+			let output = common::run(&args).input("INFO FOR NAMESPACE").output().expect("success");
+			assert!(output.contains(r#"DEFINE USER test ON NAMESPACE PASSHASH"#));
+			let args =
+				format!("sql --conn http://{addr} --user {USER} --pass {PASS} --namespace {ns} --database {db}");
+			let output = common::run(&args).input("SELECT * FROM user").output().expect("success");
+			assert!(output.contains(r#"{ id: user:1 }"#));
+			server.finish().unwrap();
+		}
+
+		info!("* Invalid import file");
+		{
+			// Start the server with an import file which contains invalid SurrealQL.
+			let query = r#"
+				DEFINE USER test ON ROOT PASSWORD "secret"; -- Valid
+				DEFINE USER ON ROOT test PASSWORD "secret"; -- Invalid
+			"#;
+			let import_file = common::tmp_file("import.surql");
+			let mut file = File::create(&import_file).unwrap();
+			file.write_all(query.as_bytes()).unwrap();
+			let res = common::start_server_with_import_file(&import_file).await;
+			match res {
+				Ok(_) => panic!("import file should contain parseable SurrealQL"),
+				Err(e) => {
+					assert!(e.to_string().contains("server failed to start"))
+				}
+			}
+			// Verify that no data has been created on the datastore.
+			let (addr, mut server) = common::start_server_with_defaults().await.unwrap();
+			let args =
+				format!("sql --conn http://{addr} --user {USER} --pass {PASS} --namespace {ns}");
+			let output = common::run(&args).input("INFO FOR ROOT").output().expect("success");
+			assert!(!output.contains(r#"DEFINE USER test ON ROOT PASSHASH"#));
+			server.finish().unwrap();
+		}
+
+		info!("* Nonexistent import file");
+		{
+			// Start the server with an import file which does not exist.
+			let import_file = common::tmp_file("import.surql");
+			let res = common::start_server_with_import_file(&import_file).await;
+			match res {
+				Ok(_) => panic!("import file should require an existent file"),
+				Err(e) => {
+					assert!(e.to_string().contains("server failed to start"))
+				}
+			}
+		}
+	}
+
+	#[test(tokio::test)]
 	async fn node() {
 		// Commands without credentials when auth is disabled, should succeed
 		let (addr, mut server) = common::start_server(StartServerArguments {
@@ -1010,7 +1146,7 @@ mod cli_integration {
 		statement_file.touch().unwrap();
 		statement_file.write_str("CREATE thing:success;").unwrap();
 
-		assert!(common::run_in_dir("validate", &temp_dir).output().is_ok());
+		common::run_in_dir("validate", &temp_dir).output().unwrap();
 	}
 
 	#[test]
@@ -1036,6 +1172,7 @@ mod cli_integration {
 		assert!(common::run_in_dir("validate", &temp_dir).output().is_err());
 	}
 
+	#[cfg(unix)]
 	#[test(tokio::test)]
 	async fn test_server_graceful_shutdown() {
 		let (_, mut server) = common::start_server_with_defaults().await.unwrap();
@@ -1063,6 +1200,7 @@ mod cli_integration {
 		}
 	}
 
+	#[cfg(unix)]
 	#[test(tokio::test)]
 	async fn test_server_second_signal_handling() {
 		let (addr, mut server) = common::start_server_without_auth().await.unwrap();
@@ -1077,7 +1215,7 @@ mod cli_integration {
 			// Make sure the SLEEP query is being executed
 			tokio::time::timeout(time::Duration::from_secs(10), async {
 				loop {
-					let err = server.stderr();
+					let err = server.stdout_and_stderr();
 					if err.contains("SLEEP 30s") {
 						break;
 					}

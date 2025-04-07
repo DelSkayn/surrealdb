@@ -13,9 +13,10 @@ use opentelemetry_sdk::Resource;
 use std::sync::LazyLock;
 use std::time::Duration;
 use tracing::{Level, Subscriber};
+use tracing_appender::non_blocking::NonBlockingBuilder;
+use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::filter::ParseError;
 use tracing_subscriber::prelude::*;
-use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
 pub static OTEL_DEFAULT_RESOURCE: LazyLock<Resource> = LazyLock::new(|| {
@@ -58,11 +59,13 @@ impl Default for Builder {
 
 impl Builder {
 	/// Install the tracing dispatcher globally
-	pub fn init(self) -> Result<(), Error> {
+	pub fn init(self) -> Result<(WorkerGuard, WorkerGuard), Error> {
 		// Setup logs, tracing, and metrics
-		self.build()?.init();
+		let (registry, stdout, stderr) = self.build()?;
+		// Initialise the registry
+		registry.init();
 		// Everything ok
-		Ok(())
+		Ok((stdout, stderr))
 	}
 
 	/// Set the log filter on the builder
@@ -80,19 +83,35 @@ impl Builder {
 	}
 
 	/// Build a tracing dispatcher with the logs and tracer subscriber
-	pub fn build(&self) -> Result<Box<dyn Subscriber + Send + Sync + 'static>, Error> {
+	pub fn build(
+		&self,
+	) -> Result<(Box<dyn Subscriber + Send + Sync + 'static>, WorkerGuard, WorkerGuard), Error> {
+		// Create a non-blocking stdout log destination
+		let (stdout, stdout_guard) = NonBlockingBuilder::default()
+			.lossy(true)
+			.thread_name("surrealdb-logger-stdout")
+			.finish(std::io::stdout());
+		// Create a non-blocking stderr log destination
+		let (stderr, stderr_guard) = NonBlockingBuilder::default()
+			.lossy(true)
+			.thread_name("surrealdb-logger-stderr")
+			.finish(std::io::stderr());
+		// Create the logging destination layer
+		let log_layer = logs::new(self.filter.clone(), stdout, stderr)?;
+		// Create the trace destination layer
+		let trace_layer = traces::new(self.filter.clone())?;
 		// Setup a registry for composing layers
 		let registry = tracing_subscriber::registry();
 		// Setup logging layer
-		let registry = registry.with(logs::new(self.filter.clone())?);
+		let registry = registry.with(log_layer);
 		// Setup tracing layer
-		let registry = registry.with(traces::new(self.filter.clone())?);
+		let registry = registry.with(trace_layer);
 		// Setup the metrics layer
 		if let Some(provider) = metrics::init()? {
 			global::set_meter_provider(provider);
 		}
 		// Return the registry
-		Ok(Box::new(registry))
+		Ok((Box::new(registry), stdout_guard, stderr_guard))
 	}
 }
 
@@ -137,11 +156,50 @@ pub fn filter_from_value(v: &str) -> Result<EnvFilter, ParseError> {
 
 #[cfg(test)]
 mod tests {
+	use std::{ffi::OsString, sync::Mutex};
+
 	use opentelemetry::global::shutdown_tracer_provider;
 	use tracing::{span, Level};
 	use tracing_subscriber::util::SubscriberInitExt;
 
 	use crate::telemetry;
+
+	static ENV_MUTEX: Mutex<()> = Mutex::new(());
+
+	fn with_vars<K, V, F, R>(vars: &[(K, Option<V>)], f: F) -> R
+	where
+		F: FnOnce() -> R,
+		K: AsRef<str>,
+		V: AsRef<str>,
+	{
+		let _guard = ENV_MUTEX.lock();
+
+		let mut restore = Vec::new();
+
+		for (k, v) in vars {
+			restore.push((k.as_ref().to_string(), std::env::var_os(k.as_ref())));
+			if let Some(x) = v {
+				std::env::set_var(k.as_ref(), x.as_ref());
+			} else {
+				std::env::remove_var(k.as_ref());
+			}
+		}
+
+		struct Dropper(Vec<(String, Option<OsString>)>);
+		impl Drop for Dropper {
+			fn drop(&mut self) {
+				for (k, v) in self.0.drain(..) {
+					if let Some(v) = v {
+						std::env::set_var(k, v);
+					} else {
+						std::env::remove_var(k);
+					}
+				}
+			}
+		}
+		let _drop_gaurd = Dropper(restore);
+		f()
+	}
 
 	#[tokio::test(flavor = "multi_thread")]
 	async fn test_otlp_tracer() {
@@ -150,14 +208,16 @@ mod tests {
 
 		{
 			let otlp_endpoint = format!("http://{addr}");
-			temp_env::with_vars(
-				vec![
+			with_vars(
+				&[
 					("SURREAL_TELEMETRY_PROVIDER", Some("otlp")),
 					("OTEL_EXPORTER_OTLP_ENDPOINT", Some(otlp_endpoint.as_str())),
 				],
 				|| {
-					let _enter =
-						telemetry::builder().with_log_level("info").build().unwrap().set_default();
+					let (registry, outg, errg) =
+						telemetry::builder().with_log_level("info").build().unwrap();
+
+					let _enter = registry.set_default();
 
 					println!("Sending span...");
 
@@ -168,6 +228,8 @@ mod tests {
 					}
 
 					shutdown_tracer_provider();
+					drop(outg);
+					drop(errg);
 				},
 			)
 		}
@@ -192,14 +254,16 @@ mod tests {
 
 		{
 			let otlp_endpoint = format!("http://{addr}");
-			temp_env::with_vars(
-				vec![
+			with_vars(
+				&[
 					("SURREAL_TELEMETRY_PROVIDER", Some("otlp")),
 					("OTEL_EXPORTER_OTLP_ENDPOINT", Some(otlp_endpoint.as_str())),
 				],
 				|| {
-					let _enter =
-						telemetry::builder().with_log_level("debug").build().unwrap().set_default();
+					let (registry, outg, errg) =
+						telemetry::builder().with_log_level("debug").build().unwrap();
+
+					let _enter = registry.set_default();
 
 					println!("Sending spans...");
 
@@ -218,6 +282,8 @@ mod tests {
 					}
 
 					shutdown_tracer_provider();
+					drop(outg);
+					drop(errg);
 				},
 			)
 		}
