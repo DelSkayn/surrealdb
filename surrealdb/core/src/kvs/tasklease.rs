@@ -590,7 +590,7 @@ mod tests {
 	#[tokio::test(flavor = "multi_thread")]
 	async fn task_lease_concurrency_memory() {
 		// Create a new memory configuration
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		// Create a new in-memory datastore
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
@@ -612,7 +612,7 @@ mod tests {
 		// Create a temporary directory for the RocksDB datastore
 		let path = TempDir::new().unwrap().path().to_string_lossy().to_string();
 		// Create a new RocksDB configuration
-		let config = crate::kvs::config::RocksDbConfig::default();
+		let config = crate::kvs::rocksdb::RocksDbConfig::default();
 		// Create a new RocksDB datastore in the temporary directory
 		let flavor = crate::kvs::rocksdb::Datastore::new(&path, config)
 			.await
@@ -636,7 +636,7 @@ mod tests {
 		// Create a temporary directory for the SurrealKV datastore
 		let path = TempDir::new().unwrap().path().to_string_lossy().to_string();
 		// Create a new SurrealKV configuration
-		let config = crate::kvs::config::SurrealKvConfig::default();
+		let config = crate::kvs::surrealkv::SurrealKvConfig::default();
 		// Create a new SurrealKV datastore
 		let flavor = crate::kvs::surrealkv::Datastore::new(&path, config)
 			.await
@@ -658,7 +658,7 @@ mod tests {
 	#[tokio::test]
 	async fn test_lease_renewal_behavior() {
 		// Create a new memory configuration
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		// Create an in-memory datastore
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
@@ -735,7 +735,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_another_node_rejected_while_lease_valid() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -788,7 +788,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_min_lease_duration_floor() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -831,7 +831,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_different_task_types_are_independent() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -884,7 +884,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_try_maintain_lease_throttling() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -947,7 +947,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_lease_expiration_and_takeover() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -1016,7 +1016,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_try_maintain_lease_reports_lost_lease() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());
@@ -1077,7 +1077,7 @@ mod tests {
 	#[cfg(feature = "kv-mem")]
 	#[tokio::test]
 	async fn test_initial_lease_acquisition_from_empty_state() {
-		let config = crate::kvs::config::MemoryConfig::default();
+		let config = crate::kvs::mem::MemoryConfig::default();
 		let flavor =
 			crate::kvs::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem).unwrap();
 		let async_event_trigger = Arc::new(Notify::new());

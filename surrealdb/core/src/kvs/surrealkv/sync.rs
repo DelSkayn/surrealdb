@@ -14,6 +14,7 @@ use tokio::sync::oneshot::{self, Sender};
 
 use super::TARGET;
 use crate::kvs::err::{Error, Result};
+use crate::kvs::surrealkv::SurrealKvConfig;
 
 // ============================================================================
 // BackgroundFlusher
@@ -198,11 +199,11 @@ pub(super) struct CommitCoordinator {
 
 impl CommitCoordinator {
 	/// Create a new commit coordinator.
-	pub fn new(db: Tree) -> Result<Self> {
+	pub fn new(db: Tree, config: &SurrealKvConfig) -> Result<Self> {
 		// Get the batched commit configuration options
-		let timeout = *super::cnf::SURREALKV_GROUPED_COMMIT_TIMEOUT;
-		let wait_threshold = *super::cnf::SURREALKV_GROUPED_COMMIT_WAIT_THRESHOLD;
-		let max_batch_size = *super::cnf::SURREALKV_GROUPED_COMMIT_MAX_BATCH_SIZE;
+		let timeout = config.grouped_commit_timeout;
+		let wait_threshold = config.grouped_commit_wait_threshold;
+		let max_batch_size = config.grouped_commit_max_batch_size;
 		// Log the batched group commit configuration options
 		info!(target: TARGET, "Grouped commit: enabled (timeout={}ns, wait_threshold={}, max_batch_size={})",
 			timeout,

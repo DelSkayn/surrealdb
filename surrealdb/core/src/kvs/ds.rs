@@ -47,8 +47,8 @@ use crate::catalog::providers::{
 	UserProvider,
 };
 use crate::catalog::{ApiDefinition, Index, NodeLiveQuery, SubscriptionDefinition};
-use crate::cnf::NORMAL_FETCH_SIZE;
 use crate::cnf::dynamic::DynamicConfiguration;
+use crate::cnf::{CommonConfig, ConfigMap, NORMAL_FETCH_SIZE};
 use crate::ctx::Context;
 #[cfg(feature = "jwks")]
 use crate::dbs::capabilities::NetTarget;
@@ -138,6 +138,8 @@ pub struct Datastore {
 	surrealism_cache: Arc<SurrealismCache>,
 	// Async event processing trigger
 	async_event_trigger: Arc<Notify>,
+	/// Config
+	config: Arc<CommonConfig>,
 }
 
 /// Represents a collection of metrics for a specific datastore flavor.
@@ -284,6 +286,7 @@ pub trait TransactionBuilderFactory: TransactionBuilderFactoryRequirements {
 		&self,
 		path: &str,
 		canceller: CancellationToken,
+		config: ConfigMap,
 	) -> Result<Box<dyn TransactionBuilder>>;
 
 	/// Validate a datastore path string.
@@ -329,15 +332,21 @@ impl TransactionBuilderFactory for CommunityComposer {
 		&self,
 		path: &str,
 		_canceller: CancellationToken,
+		config: ConfigMap,
 	) -> Result<Box<dyn TransactionBuilder>> {
 		// Extract query parameters from the path before scheme extraction
-		let (raw_path, query_string) = match path.split_once('?') {
+		let (raw_path, config_string) = match path.split_once('?') {
 			Some((p, q)) => (p, Some(q)),
 			None => (path, None),
 		};
 
-		// Parse any query parameters into a map
-		let params = query_string.map(super::config::parse_query_params).unwrap_or_default();
+		let config = if let Some(config_string) = config_string {
+			config.join(
+				ConfigMap::from_config_string(config_string).map_keys(|x| format!("datastore_{x}")),
+			)
+		} else {
+			config
+		};
 
 		// Extract the scheme and path components
 		let (flavour, path) = match raw_path.split_once("://").or_else(|| raw_path.split_once(':'))
@@ -371,9 +380,10 @@ impl TransactionBuilderFactory for CommunityComposer {
 				{
 					// Create a new blocking threadpool
 					super::threadpool::initialise();
+
+					let config = config.with_key_value("datastore_persist", path);
 					// Parse SurrealMX configuration from URL path and query parameters
-					let config = super::config::MemoryConfig::from_path_and_params(&path, &params)
-						.map_err(Error::Kvs)?;
+					let config = config.load();
 					// Initialise the storage engine
 					let v = super::mem::Datastore::new(config).await.map(DatastoreFlavor::Mem)?;
 					info!(target: TARGET, "Started kvs store in {flavour}");
@@ -389,8 +399,7 @@ impl TransactionBuilderFactory for CommunityComposer {
 					// Create a new blocking threadpool
 					super::threadpool::initialise();
 					// Parse RocksDB-specific configuration from query parameters
-					let config =
-						super::config::RocksDbConfig::from_params(&params).map_err(Error::Kvs)?;
+					let config = config.load();
 					// Initialise the storage engine
 					let v = super::rocksdb::Datastore::new(&path, config)
 						.await
@@ -408,8 +417,7 @@ impl TransactionBuilderFactory for CommunityComposer {
 					// Create a new blocking threadpool
 					super::threadpool::initialise();
 					// Parse SurrealKV-specific configuration from query parameters
-					let config =
-						super::config::SurrealKvConfig::from_params(&params).map_err(Error::Kvs)?;
+					let config = config.load();
 					// Initialise the storage engine
 					let v = super::surrealkv::Datastore::new(&path, config)
 						.await
@@ -622,7 +630,17 @@ impl Datastore {
 	/// # }
 	/// ```
 	pub async fn new(path: &str) -> Result<Self> {
-		Self::new_with_factory(CommunityComposer(), path, CancellationToken::new()).await
+		Self::new_with_factory(
+			CommunityComposer(),
+			path,
+			CancellationToken::new(),
+			ConfigMap::from_env(),
+		)
+		.await
+	}
+
+	pub async fn new_with_config(path: &str, config: ConfigMap) -> Result<Self> {
+		Self::new_with_factory(CommunityComposer(), path, CancellationToken::new(), config).await
 	}
 
 	/// Creates a new datastore instance with a custom transaction builder factory.
@@ -641,22 +659,25 @@ impl Datastore {
 		composer: F,
 		path: &str,
 		canceller: CancellationToken,
+		config: ConfigMap,
 	) -> Result<Self> {
 		// Initiate the desired datastore
-		let builder = composer.new_transaction_builder(path, canceller).await?;
+		let builder = composer.new_transaction_builder(path, canceller, config.clone()).await?;
 		//
 		let buckets = BucketsManager::new(Arc::new(composer));
 		// Set the properties on the datastore
-		Self::new_with_builder(builder, buckets)
+		Self::new_with_builder(builder, buckets, config)
 	}
 
 	pub(crate) fn new_with_builder(
 		builder: Box<dyn TransactionBuilder>,
 		buckets: BucketsManager,
+		config: ConfigMap,
 	) -> Result<Self> {
 		let async_event_trigger = Arc::new(Notify::new());
 		let tf = TransactionFactory::new(async_event_trigger.clone(), builder);
 		let id = Uuid::new_v4();
+		let config = Arc::new(config.load());
 		Ok(Self {
 			id,
 			transaction_factory: tf.clone(),
@@ -678,6 +699,7 @@ impl Datastore {
 			#[cfg(feature = "surrealism")]
 			surrealism_cache: Arc::new(SurrealismCache::new()),
 			async_event_trigger,
+			config,
 		})
 	}
 
@@ -720,6 +742,7 @@ impl Datastore {
 			#[cfg(feature = "surrealism")]
 			surrealism_cache: Arc::new(SurrealismCache::new()),
 			async_event_trigger: self.async_event_trigger,
+			config: self.config,
 		}
 	}
 
@@ -942,8 +965,9 @@ impl Datastore {
 				pass,
 				INITIAL_USER_ROLE.to_owned(),
 			);
-			let opt = Options::new(self.id, self.dynamic_configuration.clone())
-				.with_auth(Arc::new(Auth::for_root(Role::Owner)));
+			let opt =
+				Options::new(self.id, self.dynamic_configuration.clone(), &CommonConfig::default())
+					.with_auth(Arc::new(Auth::for_root(Role::Owner)));
 			let mut ctx = Context::default();
 			ctx.set_transaction(txn.clone());
 			let ctx = ctx.freeze();
@@ -1770,7 +1794,7 @@ impl Datastore {
 		vars: Option<PublicVariables>,
 	) -> std::result::Result<Vec<QueryResult>, TypesError> {
 		// Parse the SQL query text
-		let ast = syn::parse_with_capabilities(txt, &self.capabilities)
+		let ast = syn::parse_with_capabilities(txt, &self.capabilities, &self.config)
 			.map_err(|e| TypesError::validation(e.to_string(), None))?;
 		// Process the AST
 		self.process(ast, sess, vars).await
@@ -1786,7 +1810,7 @@ impl Datastore {
 		tx: Arc<Transaction>,
 	) -> std::result::Result<Vec<QueryResult>, TypesError> {
 		// Parse the SQL query text
-		let ast = syn::parse_with_capabilities(txt, &self.capabilities)
+		let ast = syn::parse_with_capabilities(txt, &self.capabilities, &self.config)
 			.map_err(|e| TypesError::validation(e.to_string(), None))?;
 		// Process the AST with the transaction
 		self.process_with_transaction(ast, sess, vars, tx).await
@@ -2177,7 +2201,7 @@ impl Datastore {
 	}
 
 	pub fn setup_options(&self, sess: &Session) -> Options {
-		Options::new(self.id, self.dynamic_configuration.clone())
+		Options::new(self.id, self.dynamic_configuration.clone(), &self.config)
 			.with_ns(sess.ns())
 			.with_db(sess.db())
 			.with_live(sess.live())
@@ -2197,6 +2221,7 @@ impl Datastore {
 			#[cfg(storage)]
 			self.temporary_directory.clone(),
 			self.buckets.clone(),
+			self.config.clone(),
 			#[cfg(feature = "surrealism")]
 			self.surrealism_cache.clone(),
 		)?;
@@ -2400,6 +2425,10 @@ impl Datastore {
 
 		Ok(())
 	}
+
+	pub fn config(&self) -> Arc<CommonConfig> {
+		self.config.clone()
+	}
 }
 
 #[cfg(test)]
@@ -2479,7 +2508,7 @@ mod test {
 
 		let dbs = Datastore::new("memory").await.unwrap().with_capabilities(Capabilities::all());
 
-		let opt = Options::new(dbs.id(), DynamicConfiguration::default())
+		let opt = Options::new(dbs.id(), DynamicConfiguration::default(), &dbs.config())
 			.with_ns(Some("test".into()))
 			.with_db(Some("test".into()))
 			.with_live(false)

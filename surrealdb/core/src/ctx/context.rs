@@ -23,7 +23,7 @@ use crate::buc::store::ObjectKey;
 use crate::buc::store::ObjectStore;
 use crate::catalog::providers::{CatalogProvider, DatabaseProvider, NamespaceProvider};
 use crate::catalog::{DatabaseDefinition, DatabaseId, NamespaceId};
-use crate::cnf::PROTECTED_PARAM_NAMES;
+use crate::cnf::{CommonConfig, PROTECTED_PARAM_NAMES};
 use crate::ctx::canceller::Canceller;
 use crate::ctx::reason::Reason;
 #[cfg(feature = "surrealism")]
@@ -103,6 +103,8 @@ pub struct Context {
 	matches_context: Option<Arc<crate::exec::function::MatchesContext>>,
 	// KNN context for index functions (vector::distance::knn)
 	knn_context: Option<Arc<crate::exec::function::KnnContext>>,
+	// Executor config
+	pub config: Arc<CommonConfig>,
 }
 
 impl Default for Context {
@@ -160,6 +162,7 @@ impl Context {
 			redact_volatile_explain_attrs: false,
 			matches_context: None,
 			knn_context: None,
+			config: Arc::new(Default::default()),
 		}
 	}
 
@@ -192,6 +195,7 @@ impl Context {
 			redact_volatile_explain_attrs: parent.redact_volatile_explain_attrs,
 			matches_context: parent.matches_context.clone(),
 			knn_context: parent.knn_context.clone(),
+			config: parent.config.clone(),
 		}
 	}
 
@@ -226,6 +230,7 @@ impl Context {
 			redact_volatile_explain_attrs: parent.redact_volatile_explain_attrs,
 			matches_context: parent.matches_context.clone(),
 			knn_context: parent.knn_context.clone(),
+			config: parent.config.clone(),
 		}
 	}
 
@@ -267,6 +272,7 @@ impl Context {
 			redact_volatile_explain_attrs: from.redact_volatile_explain_attrs,
 			matches_context: from.matches_context.clone(),
 			knn_context: from.knn_context.clone(),
+			config: from.config.clone(),
 		}
 	}
 
@@ -301,6 +307,7 @@ impl Context {
 			redact_volatile_explain_attrs: from.redact_volatile_explain_attrs,
 			matches_context: from.matches_context.clone(),
 			knn_context: from.knn_context.clone(),
+			config: from.config.clone(),
 		}
 	}
 
@@ -316,6 +323,7 @@ impl Context {
 		cache: Arc<DatastoreCache>,
 		#[cfg(storage)] temporary_directory: Option<Arc<PathBuf>>,
 		buckets: BucketsManager,
+		config: Arc<CommonConfig>,
 		#[cfg(feature = "surrealism")] surrealism_cache: Arc<SurrealismCache>,
 	) -> Result<Context> {
 		let planner_strategy = capabilities.planner_strategy().clone();
@@ -346,6 +354,7 @@ impl Context {
 			redact_volatile_explain_attrs: false,
 			matches_context: None,
 			knn_context: None,
+			config,
 		};
 		if let Some(timeout) = time_out {
 			ctx.add_timeout(timeout)?;

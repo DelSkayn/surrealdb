@@ -830,6 +830,10 @@ impl DeserializeRevisioned for Expr {
 			crate::syn::parser::ParserSettings {
 				files_enabled: true,
 				surrealism_enabled: true,
+				// At some point we parsed this query, so it fit in some kind of defined limit.
+				// So it should be relatively safe to parse this without a limit.
+				object_recursion_limit: usize::MAX,
+				query_recursion_limit: usize::MAX,
 				..Default::default()
 			},
 			async |p, stk| p.parse_expr(stk).await,

@@ -1,4 +1,3 @@
-use crate::cnf::{MAX_OBJECT_PARSING_DEPTH, MAX_QUERY_PARSING_DEPTH};
 use crate::syn;
 use crate::syn::parser::ParserSettings;
 use crate::types::PublicValue;
@@ -16,8 +15,9 @@ pub fn encode_str(value: PublicValue) -> anyhow::Result<String> {
 
 pub fn decode(value: &[u8]) -> anyhow::Result<PublicValue> {
 	let settings = ParserSettings {
-		object_recursion_limit: *MAX_OBJECT_PARSING_DEPTH as usize,
-		query_recursion_limit: *MAX_QUERY_PARSING_DEPTH as usize,
+		// Both of these limits are unused in the value parsing path.
+		object_recursion_limit: 0,
+		query_recursion_limit: 0,
 		legacy_strands: true,
 		..Default::default()
 	};

@@ -1,5 +1,7 @@
 #![cfg(feature = "kv-mem")]
 
+mod cnf;
+
 use std::ops::Range;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -7,8 +9,9 @@ use std::time::Duration;
 use surrealmx::{Database, DatabaseOptions, KeyIterator, ScanIterator, Transaction as Tx};
 use tokio::sync::RwLock;
 
+pub use cnf::MemoryConfig;
+
 use super::api::ScanLimit;
-use super::config::MemoryConfig;
 #[cfg(not(target_family = "wasm"))]
 use super::config::{AolMode, SnapshotMode, SyncMode};
 use super::err::{Error, Result};

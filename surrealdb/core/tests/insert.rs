@@ -40,24 +40,24 @@ async fn insert_relation_with_extra_fields() -> Result<()> {
 	let sql = "
 		DEFINE TABLE person SCHEMAFULL;
 		DEFINE FIELD name ON person TYPE string;
-		
+
 		DEFINE TABLE friendship TYPE RELATION IN person OUT person SCHEMAFULL;
 		DEFINE FIELD strength ON friendship TYPE int;
 		DEFINE FIELD since ON friendship TYPE string;
-		
+
 		INSERT INTO person [
 			{ id: person:alice, name: 'Alice' },
 			{ id: person:bob, name: 'Bob' }
 		];
-		
+
 		-- Test single object with extra fields
-		INSERT RELATION INTO friendship { 
-			in: person:alice, 
-			out: person:bob, 
+		INSERT RELATION INTO friendship {
+			in: person:alice,
+			out: person:bob,
 			strength: 100,
 			since: '2024-01-01'
 		};
-		
+
 		SELECT strength, since FROM friendship;
 	";
 	let mut t = Test::new(sql).await?;
@@ -82,21 +82,21 @@ async fn insert_relation_array_with_extra_fields() -> Result<()> {
 	let sql = "
 		DEFINE TABLE person SCHEMAFULL;
 		DEFINE FIELD name ON person TYPE string;
-		
+
 		DEFINE TABLE likes TYPE RELATION IN person OUT person SCHEMAFULL;
 		DEFINE FIELD rating ON likes TYPE int;
-		
+
 		INSERT INTO person [
 			{ id: person:a, name: 'A' },
 			{ id: person:b, name: 'B' },
 			{ id: person:c, name: 'C' }
 		];
-		
+
 		INSERT RELATION INTO likes [
 			{ in: person:a, out: person:b, rating: 5 },
 			{ in: person:b, out: person:c, rating: 3 }
 		];
-		
+
 		SELECT rating FROM likes ORDER BY rating DESC;
 	";
 	let mut t = Test::new(sql).await?;
@@ -122,23 +122,23 @@ async fn insert_relation_on_duplicate_key_update_extra_fields() -> Result<()> {
 	let sql = "
 		DEFINE TABLE person SCHEMAFULL;
 		DEFINE FIELD name ON person TYPE string;
-		
+
 		DEFINE TABLE follows TYPE RELATION IN person OUT person SCHEMAFULL;
 		DEFINE FIELD priority ON follows TYPE int;
 		DEFINE INDEX idx_follows_unique ON follows FIELDS in, out UNIQUE;
-		
+
 		INSERT INTO person [
 			{ id: person:x, name: 'X' },
 			{ id: person:y, name: 'Y' }
 		];
-		
+
 		-- Initial insert
 		INSERT RELATION INTO follows { in: person:x, out: person:y, priority: 1 };
-		
-		-- Update with ON DUPLICATE KEY UPDATE  
+
+		-- Update with ON DUPLICATE KEY UPDATE
 		INSERT RELATION INTO follows { in: person:x, out: person:y, priority: 99 }
 			ON DUPLICATE KEY UPDATE priority = $input.priority;
-		
+
 		SELECT priority FROM follows;
 	";
 	let mut t = Test::new(sql).await?;

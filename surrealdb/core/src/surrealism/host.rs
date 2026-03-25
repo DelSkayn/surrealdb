@@ -47,7 +47,9 @@ impl InvocationContext for Host {
 			ctx.freeze()
 		};
 
-		let expr: Expr = syn::expr(&query)?.into();
+		let expr: Expr =
+			syn::expr_with_capabilities(&query, &self.ctx.get_capabilities(), &self.ctx.config)?
+				.into();
 		let res = self
 			.stk
 			.enter(|stk| expr.compute(stk, &ctx, &self.opt, self.doc.as_ref()))
@@ -66,7 +68,12 @@ impl InvocationContext for Host {
 		_args: Vec<PublicValue>,
 	) -> Result<PublicValue> {
 		let expr = Expr::FunctionCall(Box::new(FunctionCall {
-			receiver: syn::function(&fnc)?.into(),
+			receiver: syn::function_with_capabilities(
+				&fnc,
+				&self.ctx.get_capabilities(),
+				&self.ctx.config,
+			)?
+			.into(),
 			arguments: _args.into_iter().map(Expr::from_public_value).collect(),
 		}));
 

@@ -5,7 +5,6 @@ use futures::future::try_join_all;
 use reblessive::tree::Stk;
 use surrealdb_types::ToSql;
 
-use crate::cnf::MAX_COMPUTATION_DEPTH;
 use crate::ctx::FrozenContext;
 use crate::dbs::Options;
 use crate::doc::CursorDoc;
@@ -13,7 +12,7 @@ use crate::err::Error;
 use crate::exe::try_join_all_buffered;
 use crate::expr::field::Fields;
 use crate::expr::idiom::recursion::{Recursion, compute_idiom_recursion};
-use crate::expr::part::{FindRecursionPlan, Next, NextMethod, Part, SplitByRepeatRecurse};
+use crate::expr::part::{FindRecursionPlan, Next, NextMethod, Part, Recurse, SplitByRepeatRecurse};
 use crate::expr::statements::select::SelectStatement;
 use crate::expr::{ControlFlow, Expr, FlowResult, FlowResultExt as _, Idiom, Literal, Lookup};
 use crate::fnc::idiom;
@@ -44,7 +43,7 @@ impl Value {
 		path: &[Part],
 	) -> FlowResult<Self> {
 		// Limit recursion depth.
-		if path.len() > (*MAX_COMPUTATION_DEPTH).try_into().unwrap_or(usize::MAX) {
+		if path.len() > ctx.config.max_computation_depth as usize {
 			return Err(ControlFlow::from(anyhow::Error::new(Error::ComputationDepthExceeded)));
 		}
 
@@ -95,7 +94,27 @@ impl Value {
 				};
 
 				// Collect the min & max for the recursion context
-				let (min, max) = recurse.to_owned().try_into()?;
+				let (min, max) = match recurse {
+					Recurse::Fixed(n) => (n, Some(n)),
+					Recurse::Range(min, max) => (min.unwrap_or(1), *max),
+				};
+
+				if min < 1 {
+					return Err(ControlFlow::Err(anyhow::Error::new(Error::InvalidBound {
+						found: min.to_string(),
+						expected: "at least 1".into(),
+					})));
+				}
+
+				if let Some(max) = max
+					&& max > ctx.config.idiom_recursion_limit
+				{
+					return Err(ControlFlow::Err(anyhow::Error::new(Error::InvalidBound {
+						found: min.to_string(),
+						expected: format!("{} at most", ctx.config.idiom_recursion_limit),
+					})));
+				}
+
 				// Construct the recursion context
 				let rec = Recursion {
 					min,
@@ -287,7 +306,7 @@ impl Value {
 									v.get(stk, ctx, opt, doc, path)
 								})
 							});
-							try_join_all_buffered(futs)
+							try_join_all_buffered(futs, ctx.config.max_concurrent_tasks)
 						})
 						.await
 						.map(Into::into)
@@ -297,7 +316,7 @@ impl Value {
 						stk.scope(|scope| {
 							let futs =
 								v.iter().map(|v| scope.run(|stk| v.get(stk, ctx, opt, doc, path)));
-							try_join_all_buffered(futs)
+							try_join_all_buffered(futs, ctx.config.max_concurrent_tasks)
 						})
 						.await
 						.map(Into::into)
@@ -377,7 +396,7 @@ impl Value {
 								let futs = v
 									.iter()
 									.map(|v| scope.run(|stk| v.get(stk, ctx, opt, doc, path)));
-								try_join_all_buffered(futs)
+								try_join_all_buffered(futs, ctx.config.max_concurrent_tasks)
 							})
 							.await
 							.map(Value::from)?;
