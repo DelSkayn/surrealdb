@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 //! SurrealQL token lexer definitions
 //!
 //! This crate is split out because of the large amount of code logos tends to generate, slowing
@@ -21,6 +23,7 @@ mod datetime;
 mod duration;
 mod escaped;
 mod js_function;
+mod keyword;
 mod record_id_key;
 mod regex;
 mod uuid;
@@ -30,6 +33,7 @@ pub use datetime::DateTimeToken;
 pub use duration::DurationToken;
 pub use escaped::EscapeTokenKind;
 pub use js_function::{JsFunctionTemplateToken, JsFunctionToken};
+pub use keyword::Keyword;
 pub use record_id_key::RecordIdKeyToken;
 pub use regex::RegexToken;
 pub use uuid::UuidToken;

@@ -9,7 +9,7 @@ use crate::parse::{ParseError, ParseResult, Parser};
 impl<'source, 'ast> Parser<'source, 'ast> {
 	// Unescape an ident token and push the string value of that token into the ast.
 	pub(crate) fn unescape_ident(&mut self, token: Token) -> ParseResult<NodeId<String>> {
-		assert!(token.token.is_identifier());
+		assert!(matches!(token.token, BaseTokenKind::Ident(_)));
 		let slice = self.slice(token.span);
 		if slice.starts_with('`') {
 			self.unescape_backtick_ident(token.span, slice)

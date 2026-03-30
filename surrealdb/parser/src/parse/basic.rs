@@ -12,9 +12,9 @@ use super::{ParseResult, ParseSync, Parser};
 impl ParseSync for ast::Ident {
 	fn parse_sync(parser: &mut Parser) -> ParseResult<Self> {
 		let token = parser.peek_expect("an identifier")?;
-		if !token.token.is_identifier() {
+		let BaseTokenKind::Ident(_) = token.token else {
 			return Err(parser.unexpected("an identifier"));
-		}
+		};
 		let _ = parser.next();
 		let text = parser.unescape_ident(token)?;
 
@@ -136,7 +136,7 @@ impl ParseSync for ast::Path {
 					let _ = parser.expect(T![>])?;
 					PathSegment::Version(v)
 				}
-				x if x.is_identifier() => {
+				BaseTokenKind::Ident(_) => {
 					let ident = parser.parse_sync()?;
 					PathSegment::Ident(ident)
 				}

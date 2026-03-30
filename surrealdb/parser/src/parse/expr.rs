@@ -586,7 +586,7 @@ async fn parse_recurse(
 				let expects = parser.peek_expect(expected)?;
 				let expects = match expects.token {
 					BaseTokenKind::Param => Expr::Param(parser.parse_sync()?),
-					x if x.is_identifier() => Expr::RecordId(parser.parse().await?),
+					BaseTokenKind::Ident(_) => Expr::RecordId(parser.parse().await?),
 					_ => return Err(parser.unexpected(expected)),
 				};
 				let expects = parser.push(expects);
@@ -695,7 +695,7 @@ async fn parse_dot_brace_postfix(
 			let expr = parser.push(expr);
 			Ok(Expr::Idiom(expr))
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			let left = parser.push(lhs);
 
 			let mut head = None;
@@ -811,7 +811,7 @@ async fn parse_dot_postfix(
 
 			parse_dot_brace_postfix(parser, lhs, lhs_span, dot_token.span).await
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			let left = parser.push(lhs);
 			let field = parser.parse_sync()?;
 			let idiom = parser.push(IdiomExpr {
@@ -941,7 +941,7 @@ async fn parse_lookup_from(
 			let _ = parser.next();
 			Ok(None)
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			Ok(Some(parse_seperated_list(parser, T![,], Parser::parse).await?.1))
 		}
 		_ => Err(parser.unexpected(expect)),
@@ -1099,7 +1099,7 @@ impl Parse for ast::Lookup {
 					}))
 				}
 			}
-			x if x.is_identifier() => {
+			BaseTokenKind::Ident(_) => {
 				let ident = parser.parse_sync()?;
 
 				if let Some(peek) = parser.peek()?

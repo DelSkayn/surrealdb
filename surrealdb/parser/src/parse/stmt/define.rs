@@ -226,7 +226,7 @@ impl Parse for ast::DefineModule {
 		let peek = parser.peek_expect("a file literal or a path")?;
 		let subject = match peek.token {
 			BaseTokenKind::FileString => ast::ModuleName::File(parser.parse_sync()?),
-			x if x.is_identifier() => ast::ModuleName::Path(parser.parse_sync()?),
+			BaseTokenKind::Ident(_) => ast::ModuleName::Path(parser.parse_sync()?),
 			_ => return Err(parser.unexpected("a file literal or a path")),
 		};
 		let alias = if parser.eat(T![AS])?.is_some() {

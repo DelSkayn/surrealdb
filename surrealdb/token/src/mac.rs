@@ -128,960 +128,960 @@ macro_rules! T {
 	};
 
 	(ACCESS) => {
-		$crate::BaseTokenKind::KwAccess
+		$crate::BaseTokenKind::Ident($crate::Keyword::Access)
 	};
 	(AFTER) => {
-		$crate::BaseTokenKind::KwAfter
+		$crate::BaseTokenKind::Ident($crate::Keyword::After)
 	};
 	(ALGORITHM) => {
-		$crate::BaseTokenKind::KwAlgorithm
+		$crate::BaseTokenKind::Ident($crate::Keyword::Algorithm)
 	};
 	(ALL) => {
-		$crate::BaseTokenKind::KwAll
+		$crate::BaseTokenKind::Ident($crate::Keyword::All)
 	};
 	(ALTER) => {
-		$crate::BaseTokenKind::KwAlter
+		$crate::BaseTokenKind::Ident($crate::Keyword::Alter)
 	};
 	(ALWAYS) => {
-		$crate::BaseTokenKind::KwAlways
+		$crate::BaseTokenKind::Ident($crate::Keyword::Always)
 	};
 	(ANALYZE) => {
-		$crate::BaseTokenKind::KwAnalyze
+		$crate::BaseTokenKind::Ident($crate::Keyword::Analyze)
 	};
 	(ANALYZER) => {
-		$crate::BaseTokenKind::KwAnalyzer
+		$crate::BaseTokenKind::Ident($crate::Keyword::Analyzer)
 	};
 	(API) => {
-		$crate::BaseTokenKind::KwApi
+		$crate::BaseTokenKind::Ident($crate::Keyword::Api)
 	};
 	(AS) => {
-		$crate::BaseTokenKind::KwAs
+		$crate::BaseTokenKind::Ident($crate::Keyword::As)
 	};
 	(ASCENDING) => {
-		$crate::BaseTokenKind::KwAscending
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ascending)
 	};
 	(ASCII) => {
-		$crate::BaseTokenKind::KwAscii
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ascii)
 	};
 	(ASSERT) => {
-		$crate::BaseTokenKind::KwAssert
+		$crate::BaseTokenKind::Ident($crate::Keyword::Assert)
 	};
 	(AT) => {
-		$crate::BaseTokenKind::KwAt
+		$crate::BaseTokenKind::Ident($crate::Keyword::At)
 	};
 	(AUTHENTICATE) => {
-		$crate::BaseTokenKind::KwAuthenticate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Authenticate)
 	};
 	(AUTO) => {
-		$crate::BaseTokenKind::KwAuto
+		$crate::BaseTokenKind::Ident($crate::Keyword::Auto)
 	};
 	(ASYNC) => {
-		$crate::BaseTokenKind::KwAsync
+		$crate::BaseTokenKind::Ident($crate::Keyword::Async)
 	};
 	(BACKEND) => {
-		$crate::BaseTokenKind::KwBackend
+		$crate::BaseTokenKind::Ident($crate::Keyword::Backend)
 	};
 	(BATCH) => {
-		$crate::BaseTokenKind::KwBatch
+		$crate::BaseTokenKind::Ident($crate::Keyword::Batch)
 	};
 	(BEARER) => {
-		$crate::BaseTokenKind::KwBearer
+		$crate::BaseTokenKind::Ident($crate::Keyword::Bearer)
 	};
 	(BEFORE) => {
-		$crate::BaseTokenKind::KwBefore
+		$crate::BaseTokenKind::Ident($crate::Keyword::Before)
 	};
 	(BEGIN) => {
-		$crate::BaseTokenKind::KwBegin
+		$crate::BaseTokenKind::Ident($crate::Keyword::Begin)
 	};
 	(BLANK) => {
-		$crate::BaseTokenKind::KwBlank
+		$crate::BaseTokenKind::Ident($crate::Keyword::Blank)
 	};
 	(BM25) => {
-		$crate::BaseTokenKind::KwBm25
+		$crate::BaseTokenKind::Ident($crate::Keyword::Bm25)
 	};
 	(BREAK) => {
-		$crate::BaseTokenKind::KwBreak
+		$crate::BaseTokenKind::Ident($crate::Keyword::Break)
 	};
 	(BUCKET) => {
-		$crate::BaseTokenKind::KwBucket
+		$crate::BaseTokenKind::Ident($crate::Keyword::Bucket)
 	};
 	(BY) => {
-		$crate::BaseTokenKind::KwBy
+		$crate::BaseTokenKind::Ident($crate::Keyword::By)
 	};
 	(CAMEL) => {
-		$crate::BaseTokenKind::KwCamel
+		$crate::BaseTokenKind::Ident($crate::Keyword::Camel)
 	};
 	(CANCEL) => {
-		$crate::BaseTokenKind::KwCancel
+		$crate::BaseTokenKind::Ident($crate::Keyword::Cancel)
 	};
 	(CASCADE) => {
-		$crate::BaseTokenKind::KwCascade
+		$crate::BaseTokenKind::Ident($crate::Keyword::Cascade)
 	};
 	(CHANGEFEED) => {
-		$crate::BaseTokenKind::KwChangeFeed
+		$crate::BaseTokenKind::Ident($crate::Keyword::ChangeFeed)
 	};
 	(CHANGES) => {
-		$crate::BaseTokenKind::KwChanges
+		$crate::BaseTokenKind::Ident($crate::Keyword::Changes)
 	};
 	(CAPACITY) => {
-		$crate::BaseTokenKind::KwCapacity
+		$crate::BaseTokenKind::Ident($crate::Keyword::Capacity)
 	};
 	(CLASS) => {
-		$crate::BaseTokenKind::KwClass
+		$crate::BaseTokenKind::Ident($crate::Keyword::Class)
 	};
 	(CONCURRENTLY) => {
-		$crate::BaseTokenKind::KwConcurrently
+		$crate::BaseTokenKind::Ident($crate::Keyword::Concurrently)
 	};
 	(COMMENT) => {
-		$crate::BaseTokenKind::KwComment
+		$crate::BaseTokenKind::Ident($crate::Keyword::Comment)
 	};
 	(COMMIT) => {
-		$crate::BaseTokenKind::KwCommit
+		$crate::BaseTokenKind::Ident($crate::Keyword::Commit)
 	};
 	(COMPLEXITY) => {
-		$crate::BaseTokenKind::KwComplexity
+		$crate::BaseTokenKind::Ident($crate::Keyword::Complexity)
 	};
 	(COMPACT) => {
-		$crate::BaseTokenKind::KwCompact
+		$crate::BaseTokenKind::Ident($crate::Keyword::Compact)
 	};
 	(COMPUTED) => {
-		$crate::BaseTokenKind::KwComputed
+		$crate::BaseTokenKind::Ident($crate::Keyword::Computed)
 	};
 	(CONFIG) => {
-		$crate::BaseTokenKind::KwConfig
+		$crate::BaseTokenKind::Ident($crate::Keyword::Config)
 	};
 	(CONTENT) => {
-		$crate::BaseTokenKind::KwContent
+		$crate::BaseTokenKind::Ident($crate::Keyword::Content)
 	};
 	(CONTINUE) => {
-		$crate::BaseTokenKind::KwContinue
+		$crate::BaseTokenKind::Ident($crate::Keyword::Continue)
 	};
 	(COUNT) => {
-		$crate::BaseTokenKind::KwCount
+		$crate::BaseTokenKind::Ident($crate::Keyword::Count)
 	};
 	(CREATE) => {
-		$crate::BaseTokenKind::KwCreate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Create)
 	};
 	(DATABASE) => {
-		$crate::BaseTokenKind::KwDatabase
+		$crate::BaseTokenKind::Ident($crate::Keyword::Database)
 	};
 	(DEFAULT) => {
-		$crate::BaseTokenKind::KwDefault
+		$crate::BaseTokenKind::Ident($crate::Keyword::Default)
 	};
 	(DEFINE) => {
-		$crate::BaseTokenKind::KwDefine
+		$crate::BaseTokenKind::Ident($crate::Keyword::Define)
 	};
 	(DELETE) => {
-		$crate::BaseTokenKind::KwDelete
+		$crate::BaseTokenKind::Ident($crate::Keyword::Delete)
 	};
 	(DEPTH) => {
-		$crate::BaseTokenKind::KwDepth
+		$crate::BaseTokenKind::Ident($crate::Keyword::Depth)
 	};
 	(DESCENDING) => {
-		$crate::BaseTokenKind::KwDescending
+		$crate::BaseTokenKind::Ident($crate::Keyword::Descending)
 	};
 	(DIFF) => {
-		$crate::BaseTokenKind::KwDiff
+		$crate::BaseTokenKind::Ident($crate::Keyword::Diff)
 	};
 	(DIMENSION) => {
-		$crate::BaseTokenKind::KwDimension
+		$crate::BaseTokenKind::Ident($crate::Keyword::Dimension)
 	};
 	(DISTANCE) => {
-		$crate::BaseTokenKind::KwDistance
+		$crate::BaseTokenKind::Ident($crate::Keyword::Distance)
 	};
 	(DOC_IDS_CACHE) => {
-		$crate::BaseTokenKind::KwDocIdsCache
+		$crate::BaseTokenKind::Ident($crate::Keyword::DocIdsCache)
 	};
 	(DOC_IDS_ORDER) => {
-		$crate::BaseTokenKind::KwDocIdsOrder
+		$crate::BaseTokenKind::Ident($crate::Keyword::DocIdsOrder)
 	};
 	(DOC_LENGTHS_CACHE) => {
-		$crate::BaseTokenKind::KwDocLengthsCache
+		$crate::BaseTokenKind::Ident($crate::Keyword::DocLengthsCache)
 	};
 	(DOC_LENGTHS_ORDER) => {
-		$crate::BaseTokenKind::KwDocLengthsOrder
+		$crate::BaseTokenKind::Ident($crate::Keyword::DocLengthsOrder)
 	};
 	(DROP) => {
-		$crate::BaseTokenKind::KwDrop
+		$crate::BaseTokenKind::Ident($crate::Keyword::Drop)
 	};
 	(DUPLICATE) => {
-		$crate::BaseTokenKind::KwDuplicate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Duplicate)
 	};
 	(EDGENGRAM) => {
-		$crate::BaseTokenKind::KwEdgengram
+		$crate::BaseTokenKind::Ident($crate::Keyword::Edgengram)
 	};
 	(EFC) => {
-		$crate::BaseTokenKind::KwEfc
+		$crate::BaseTokenKind::Ident($crate::Keyword::Efc)
 	};
 	(EVENT) => {
-		$crate::BaseTokenKind::KwEvent
+		$crate::BaseTokenKind::Ident($crate::Keyword::Event)
 	};
 	(ELSE) => {
-		$crate::BaseTokenKind::KwElse
+		$crate::BaseTokenKind::Ident($crate::Keyword::Else)
 	};
 	(END) => {
-		$crate::BaseTokenKind::KwEnd
+		$crate::BaseTokenKind::Ident($crate::Keyword::End)
 	};
 	(ENFORCED) => {
-		$crate::BaseTokenKind::KwEnforced
+		$crate::BaseTokenKind::Ident($crate::Keyword::Enforced)
 	};
 	(EXCLUDE) => {
-		$crate::BaseTokenKind::KwExclude
+		$crate::BaseTokenKind::Ident($crate::Keyword::Exclude)
 	};
 	(EXISTS) => {
-		$crate::BaseTokenKind::KwExists
+		$crate::BaseTokenKind::Ident($crate::Keyword::Exists)
 	};
 	(EXPIRED) => {
-		$crate::BaseTokenKind::KwExpired
+		$crate::BaseTokenKind::Ident($crate::Keyword::Expired)
 	};
 	(EXPLAIN) => {
-		$crate::BaseTokenKind::KwExplain
+		$crate::BaseTokenKind::Ident($crate::Keyword::Explain)
 	};
 	(EXPUNGE) => {
-		$crate::BaseTokenKind::KwExpunge
+		$crate::BaseTokenKind::Ident($crate::Keyword::Expunge)
 	};
 	(EXTEND_CANDIDATES) => {
-		$crate::BaseTokenKind::KwExtendCandidates
+		$crate::BaseTokenKind::Ident($crate::Keyword::ExtendCandidates)
 	};
 	(false) => {
-		$crate::BaseTokenKind::KwFalse
+		$crate::BaseTokenKind::Ident($crate::Keyword::False)
 	};
 	(FETCH) => {
-		$crate::BaseTokenKind::KwFetch
+		$crate::BaseTokenKind::Ident($crate::Keyword::Fetch)
 	};
 	(FIELD) => {
-		$crate::BaseTokenKind::KwField
+		$crate::BaseTokenKind::Ident($crate::Keyword::Field)
 	};
 	(FIELDS) => {
-		$crate::BaseTokenKind::KwFields
+		$crate::BaseTokenKind::Ident($crate::Keyword::Fields)
 	};
 	(FILTERS) => {
-		$crate::BaseTokenKind::KwFilters
+		$crate::BaseTokenKind::Ident($crate::Keyword::Filters)
 	};
 	(FLEXIBLE) => {
-		$crate::BaseTokenKind::KwFlexible
+		$crate::BaseTokenKind::Ident($crate::Keyword::Flexible)
 	};
 	(FOR) => {
-		$crate::BaseTokenKind::KwFor
+		$crate::BaseTokenKind::Ident($crate::Keyword::For)
 	};
 	(FORMAT) => {
-		$crate::BaseTokenKind::KwFormat
+		$crate::BaseTokenKind::Ident($crate::Keyword::Format)
 	};
 	(FROM) => {
-		$crate::BaseTokenKind::KwFrom
+		$crate::BaseTokenKind::Ident($crate::Keyword::From)
 	};
 	(FULL) => {
-		$crate::BaseTokenKind::KwFull
+		$crate::BaseTokenKind::Ident($crate::Keyword::Full)
 	};
 	(FULLTEXT) => {
-		$crate::BaseTokenKind::KwFulltext
+		$crate::BaseTokenKind::Ident($crate::Keyword::Fulltext)
 	};
 	(FUNCTION) => {
-		$crate::BaseTokenKind::KwFunction
+		$crate::BaseTokenKind::Ident($crate::Keyword::Function)
 	};
 	(FUNCTIONS) => {
-		$crate::BaseTokenKind::KwFunctions
+		$crate::BaseTokenKind::Ident($crate::Keyword::Functions)
 	};
 	(GRANT) => {
-		$crate::BaseTokenKind::KwGrant
+		$crate::BaseTokenKind::Ident($crate::Keyword::Grant)
 	};
 	(GRAPHQL) => {
-		$crate::BaseTokenKind::KwGraphql
+		$crate::BaseTokenKind::Ident($crate::Keyword::Graphql)
 	};
 	(GROUP) => {
-		$crate::BaseTokenKind::KwGroup
+		$crate::BaseTokenKind::Ident($crate::Keyword::Group)
 	};
 	(HASHED_VECTOR) => {
-		$crate::BaseTokenKind::KwHashedVector
+		$crate::BaseTokenKind::Ident($crate::Keyword::HashedVector)
 	};
 	(HEADERS) => {
-		$crate::BaseTokenKind::KwHeaders
+		$crate::BaseTokenKind::Ident($crate::Keyword::Headers)
 	};
 	(HIGHLIGHTS) => {
-		$crate::BaseTokenKind::KwHighlights
+		$crate::BaseTokenKind::Ident($crate::Keyword::Highlights)
 	};
 	(HNSW) => {
-		$crate::BaseTokenKind::KwHnsw
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hnsw)
 	};
 	(IGNORE) => {
-		$crate::BaseTokenKind::KwIgnore
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ignore)
 	};
 	(INCLUDE) => {
-		$crate::BaseTokenKind::KwInclude
+		$crate::BaseTokenKind::Ident($crate::Keyword::Include)
 	};
 	(INCLUSIVE) => {
-		$crate::BaseTokenKind::KwInclusive
+		$crate::BaseTokenKind::Ident($crate::Keyword::Inclusive)
 	};
 	(INDEX) => {
-		$crate::BaseTokenKind::KwIndex
+		$crate::BaseTokenKind::Ident($crate::Keyword::Index)
 	};
 	(INFO) => {
-		$crate::BaseTokenKind::KwInfo
+		$crate::BaseTokenKind::Ident($crate::Keyword::Info)
 	};
 	(INSERT) => {
-		$crate::BaseTokenKind::KwInsert
+		$crate::BaseTokenKind::Ident($crate::Keyword::Insert)
 	};
 	(INTO) => {
-		$crate::BaseTokenKind::KwInto
+		$crate::BaseTokenKind::Ident($crate::Keyword::Into)
 	};
 	(INTROSPECTION) => {
-		$crate::BaseTokenKind::KwIntrospection
+		$crate::BaseTokenKind::Ident($crate::Keyword::Introspection)
 	};
 	(IF) => {
-		$crate::BaseTokenKind::KwIf
+		$crate::BaseTokenKind::Ident($crate::Keyword::If)
 	};
 	(IS) => {
-		$crate::BaseTokenKind::KwIs
+		$crate::BaseTokenKind::Ident($crate::Keyword::Is)
 	};
 	(ISSUER) => {
-		$crate::BaseTokenKind::KwIssuer
+		$crate::BaseTokenKind::Ident($crate::Keyword::Issuer)
 	};
 	(JWT) => {
-		$crate::BaseTokenKind::KwJwt
+		$crate::BaseTokenKind::Ident($crate::Keyword::Jwt)
 	};
 	(JWKS) => {
-		$crate::BaseTokenKind::KwJwks
+		$crate::BaseTokenKind::Ident($crate::Keyword::Jwks)
 	};
 	(KEY) => {
-		$crate::BaseTokenKind::KwKey
+		$crate::BaseTokenKind::Ident($crate::Keyword::Key)
 	};
 	(KEEP_PRUNED_CONNECTIONS) => {
-		$crate::BaseTokenKind::KwKeepPrunedConnections
+		$crate::BaseTokenKind::Ident($crate::Keyword::KeepPrunedConnections)
 	};
 	(KILL) => {
-		$crate::BaseTokenKind::KwKill
+		$crate::BaseTokenKind::Ident($crate::Keyword::Kill)
 	};
 	(LET) => {
-		$crate::BaseTokenKind::KwLet
+		$crate::BaseTokenKind::Ident($crate::Keyword::Let)
 	};
 	(LIMIT) => {
-		$crate::BaseTokenKind::KwLimit
+		$crate::BaseTokenKind::Ident($crate::Keyword::Limit)
 	};
 	(LIVE) => {
-		$crate::BaseTokenKind::KwLive
+		$crate::BaseTokenKind::Ident($crate::Keyword::Live)
 	};
 	(LOWERCASE) => {
-		$crate::BaseTokenKind::KwLowercase
+		$crate::BaseTokenKind::Ident($crate::Keyword::Lowercase)
 	};
 	(LM) => {
-		$crate::BaseTokenKind::KwLm
+		$crate::BaseTokenKind::Ident($crate::Keyword::Lm)
 	};
 	(M) => {
-		$crate::BaseTokenKind::KwM
+		$crate::BaseTokenKind::Ident($crate::Keyword::M)
 	};
 	(M0) => {
-		$crate::BaseTokenKind::KwM0
+		$crate::BaseTokenKind::Ident($crate::Keyword::M0)
 	};
 	(MAPPER) => {
-		$crate::BaseTokenKind::KwMapper
+		$crate::BaseTokenKind::Ident($crate::Keyword::Mapper)
 	};
 	(MAXDEPTH) => {
-		$crate::BaseTokenKind::KwMaxdepth
+		$crate::BaseTokenKind::Ident($crate::Keyword::Maxdepth)
 	};
 	(MIDDLEWARE) => {
-		$crate::BaseTokenKind::KwMiddleware
+		$crate::BaseTokenKind::Ident($crate::Keyword::Middleware)
 	};
 	(ML) => {
-		$crate::BaseTokenKind::KwML
+		$crate::BaseTokenKind::Ident($crate::Keyword::ML)
 	};
 	(MERGE) => {
-		$crate::BaseTokenKind::KwMerge
+		$crate::BaseTokenKind::Ident($crate::Keyword::Merge)
 	};
 	(MODEL) => {
-		$crate::BaseTokenKind::KwModel
+		$crate::BaseTokenKind::Ident($crate::Keyword::Model)
 	};
 	(MODULE) => {
-		$crate::BaseTokenKind::KwModule
+		$crate::BaseTokenKind::Ident($crate::Keyword::Module)
 	};
 	(MTREE) => {
-		$crate::BaseTokenKind::KwMTree
+		$crate::BaseTokenKind::Ident($crate::Keyword::MTree)
 	};
 	(MTREE_CACHE) => {
-		$crate::BaseTokenKind::KwMTreeCache
+		$crate::BaseTokenKind::Ident($crate::Keyword::MTreeCache)
 	};
 	(NAMESPACE) => {
-		$crate::BaseTokenKind::KwNamespace
+		$crate::BaseTokenKind::Ident($crate::Keyword::Namespace)
 	};
 	(NGRAM) => {
-		$crate::BaseTokenKind::KwNgram
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ngram)
 	};
 	(NO) => {
-		$crate::BaseTokenKind::KwNo
+		$crate::BaseTokenKind::Ident($crate::Keyword::No)
 	};
 	(NOINDEX) => {
-		$crate::BaseTokenKind::KwNoIndex
+		$crate::BaseTokenKind::Ident($crate::Keyword::NoIndex)
 	};
 	(NONE) => {
-		$crate::BaseTokenKind::KwNone
+		$crate::BaseTokenKind::Ident($crate::Keyword::None)
 	};
 	(NULL) => {
-		$crate::BaseTokenKind::KwNull
+		$crate::BaseTokenKind::Ident($crate::Keyword::Null)
 	};
 	(NUMERIC) => {
-		$crate::BaseTokenKind::KwNumeric
+		$crate::BaseTokenKind::Ident($crate::Keyword::Numeric)
 	};
 	(OMIT) => {
-		$crate::BaseTokenKind::KwOmit
+		$crate::BaseTokenKind::Ident($crate::Keyword::Omit)
 	};
 	(ON) => {
-		$crate::BaseTokenKind::KwOn
+		$crate::BaseTokenKind::Ident($crate::Keyword::On)
 	};
 	(ONLY) => {
-		$crate::BaseTokenKind::KwOnly
+		$crate::BaseTokenKind::Ident($crate::Keyword::Only)
 	};
 	(OPTION) => {
-		$crate::BaseTokenKind::KwOption
+		$crate::BaseTokenKind::Ident($crate::Keyword::Option)
 	};
 	(ORDER) => {
-		$crate::BaseTokenKind::KwOrder
+		$crate::BaseTokenKind::Ident($crate::Keyword::Order)
 	};
 	(ORIGINAL) => {
-		$crate::BaseTokenKind::KwOriginal
+		$crate::BaseTokenKind::Ident($crate::Keyword::Original)
 	};
 	(OVERWRITE) => {
-		$crate::BaseTokenKind::KwOverwrite
+		$crate::BaseTokenKind::Ident($crate::Keyword::Overwrite)
 	};
 	(PARALLEL) => {
-		$crate::BaseTokenKind::KwParallel
+		$crate::BaseTokenKind::Ident($crate::Keyword::Parallel)
 	};
 	(PARAM) => {
-		$crate::BaseTokenKind::KwParam
+		$crate::BaseTokenKind::Ident($crate::Keyword::Param)
 	};
 	(PASSHASH) => {
-		$crate::BaseTokenKind::KwPasshash
+		$crate::BaseTokenKind::Ident($crate::Keyword::Passhash)
 	};
 	(PASSWORD) => {
-		$crate::BaseTokenKind::KwPassword
+		$crate::BaseTokenKind::Ident($crate::Keyword::Password)
 	};
 	(PATCH) => {
-		$crate::BaseTokenKind::KwPatch
+		$crate::BaseTokenKind::Ident($crate::Keyword::Patch)
 	};
 	(PATH) => {
-		$crate::BaseTokenKind::KwPath
+		$crate::BaseTokenKind::Ident($crate::Keyword::Path)
 	};
 	(PERMISSIONS) => {
-		$crate::BaseTokenKind::KwPermissions
+		$crate::BaseTokenKind::Ident($crate::Keyword::Permissions)
 	};
 	(POSTINGS_CACHE) => {
-		$crate::BaseTokenKind::KwPostingsCache
+		$crate::BaseTokenKind::Ident($crate::Keyword::PostingsCache)
 	};
 	(POSTINGS_ORDER) => {
-		$crate::BaseTokenKind::KwPostingsOrder
+		$crate::BaseTokenKind::Ident($crate::Keyword::PostingsOrder)
 	};
 	(PREPARE) => {
-		$crate::BaseTokenKind::KwPrepare
+		$crate::BaseTokenKind::Ident($crate::Keyword::Prepare)
 	};
 	(PUNCT) => {
-		$crate::BaseTokenKind::KwPunct
+		$crate::BaseTokenKind::Ident($crate::Keyword::Punct)
 	};
 	(PURGE) => {
-		$crate::BaseTokenKind::KwPurge
+		$crate::BaseTokenKind::Ident($crate::Keyword::Purge)
 	};
 	(RANGE) => {
-		$crate::BaseTokenKind::KwRange
+		$crate::BaseTokenKind::Ident($crate::Keyword::Range)
 	};
 	(READONLY) => {
-		$crate::BaseTokenKind::KwReadonly
+		$crate::BaseTokenKind::Ident($crate::Keyword::Readonly)
 	};
 	(REJECT) => {
-		$crate::BaseTokenKind::KwReject
+		$crate::BaseTokenKind::Ident($crate::Keyword::Reject)
 	};
 	(RELATE) => {
-		$crate::BaseTokenKind::KwRelate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Relate)
 	};
 	(RELATION) => {
-		$crate::BaseTokenKind::KwRelation
+		$crate::BaseTokenKind::Ident($crate::Keyword::Relation)
 	};
 	(REBUILD) => {
-		$crate::BaseTokenKind::KwRebuild
+		$crate::BaseTokenKind::Ident($crate::Keyword::Rebuild)
 	};
 	(REFERENCE) => {
-		$crate::BaseTokenKind::KwReference
+		$crate::BaseTokenKind::Ident($crate::Keyword::Reference)
 	};
 	(REFRESH) => {
-		$crate::BaseTokenKind::KwRefresh
+		$crate::BaseTokenKind::Ident($crate::Keyword::Refresh)
 	};
 	(REMOVE) => {
-		$crate::BaseTokenKind::KwRemove
+		$crate::BaseTokenKind::Ident($crate::Keyword::Remove)
 	};
 	(REPLACE) => {
-		$crate::BaseTokenKind::KwReplace
+		$crate::BaseTokenKind::Ident($crate::Keyword::Replace)
 	};
 	(RETRY) => {
-		$crate::BaseTokenKind::KwRetry
+		$crate::BaseTokenKind::Ident($crate::Keyword::Retry)
 	};
 	(RETURN) => {
-		$crate::BaseTokenKind::KwReturn
+		$crate::BaseTokenKind::Ident($crate::Keyword::Return)
 	};
 	(REVOKE) => {
-		$crate::BaseTokenKind::KwRevoke
+		$crate::BaseTokenKind::Ident($crate::Keyword::Revoke)
 	};
 	(REVOKED) => {
-		$crate::BaseTokenKind::KwRevoked
+		$crate::BaseTokenKind::Ident($crate::Keyword::Revoked)
 	};
 	(ROLES) => {
-		$crate::BaseTokenKind::KwRoles
+		$crate::BaseTokenKind::Ident($crate::Keyword::Roles)
 	};
 	(ROOT) => {
-		$crate::BaseTokenKind::KwRoot
+		$crate::BaseTokenKind::Ident($crate::Keyword::Root)
 	};
 	(SCHEMAFULL) => {
-		$crate::BaseTokenKind::KwSchemafull
+		$crate::BaseTokenKind::Ident($crate::Keyword::Schemafull)
 	};
 	(SCHEMALESS) => {
-		$crate::BaseTokenKind::KwSchemaless
+		$crate::BaseTokenKind::Ident($crate::Keyword::Schemaless)
 	};
 	(SCOPE) => {
-		$crate::BaseTokenKind::KwScope
+		$crate::BaseTokenKind::Ident($crate::Keyword::Scope)
 	};
 	(SEARCH) => {
-		$crate::BaseTokenKind::KwSearch
+		$crate::BaseTokenKind::Ident($crate::Keyword::Search)
 	};
 	(SELECT) => {
-		$crate::BaseTokenKind::KwSelect
+		$crate::BaseTokenKind::Ident($crate::Keyword::Select)
 	};
 	(SEQUENCE) => {
-		$crate::BaseTokenKind::KwSequence
+		$crate::BaseTokenKind::Ident($crate::Keyword::Sequence)
 	};
 	(SESSION) => {
-		$crate::BaseTokenKind::KwSession
+		$crate::BaseTokenKind::Ident($crate::Keyword::Session)
 	};
 	(SET) => {
-		$crate::BaseTokenKind::KwSet
+		$crate::BaseTokenKind::Ident($crate::Keyword::Set)
 	};
 	(SHOW) => {
-		$crate::BaseTokenKind::KwShow
+		$crate::BaseTokenKind::Ident($crate::Keyword::Show)
 	};
 	(SHORTEST) => {
-		$crate::BaseTokenKind::KwShortest
+		$crate::BaseTokenKind::Ident($crate::Keyword::Shortest)
 	};
 	(SIGNIN) => {
-		$crate::BaseTokenKind::KwSignin
+		$crate::BaseTokenKind::Ident($crate::Keyword::Signin)
 	};
 	(SIGNUP) => {
-		$crate::BaseTokenKind::KwSignup
+		$crate::BaseTokenKind::Ident($crate::Keyword::Signup)
 	};
 	(SINCE) => {
-		$crate::BaseTokenKind::KwSince
+		$crate::BaseTokenKind::Ident($crate::Keyword::Since)
 	};
 	(SLEEP) => {
-		$crate::BaseTokenKind::KwSleep
+		$crate::BaseTokenKind::Ident($crate::Keyword::Sleep)
 	};
 	(SNOWBALL) => {
-		$crate::BaseTokenKind::KwSnowball
+		$crate::BaseTokenKind::Ident($crate::Keyword::Snowball)
 	};
 	(SPLIT) => {
-		$crate::BaseTokenKind::KwSplit
+		$crate::BaseTokenKind::Ident($crate::Keyword::Split)
 	};
 	(START) => {
-		$crate::BaseTokenKind::KwStart
+		$crate::BaseTokenKind::Ident($crate::Keyword::Start)
 	};
 	(STRICT) => {
-		$crate::BaseTokenKind::KwStrict
+		$crate::BaseTokenKind::Ident($crate::Keyword::Strict)
 	};
 	(STRUCTURE) => {
-		$crate::BaseTokenKind::KwStructure
+		$crate::BaseTokenKind::Ident($crate::Keyword::Structure)
 	};
 	(SYSTEM) => {
-		$crate::BaseTokenKind::KwSystem
+		$crate::BaseTokenKind::Ident($crate::Keyword::System)
 	};
 	(TABLE) => {
-		$crate::BaseTokenKind::KwTable
+		$crate::BaseTokenKind::Ident($crate::Keyword::Table)
 	};
 	(TABLES) => {
-		$crate::BaseTokenKind::KwTables
+		$crate::BaseTokenKind::Ident($crate::Keyword::Tables)
 	};
 	(TEMPFILES) => {
-		$crate::BaseTokenKind::KwTempFiles
+		$crate::BaseTokenKind::Ident($crate::Keyword::TempFiles)
 	};
 	(TERMS_CACHE) => {
-		$crate::BaseTokenKind::KwTermsCache
+		$crate::BaseTokenKind::Ident($crate::Keyword::TermsCache)
 	};
 	(TERMS_ORDER) => {
-		$crate::BaseTokenKind::KwTermsOrder
+		$crate::BaseTokenKind::Ident($crate::Keyword::TermsOrder)
 	};
 	(TEXT) => {
-		$crate::BaseTokenKind::KwText
+		$crate::BaseTokenKind::Ident($crate::Keyword::Text)
 	};
 	(THEN) => {
-		$crate::BaseTokenKind::KwThen
+		$crate::BaseTokenKind::Ident($crate::Keyword::Then)
 	};
 	(THROW) => {
-		$crate::BaseTokenKind::KwThrow
+		$crate::BaseTokenKind::Ident($crate::Keyword::Throw)
 	};
 	(TIMEOUT) => {
-		$crate::BaseTokenKind::KwTimeout
+		$crate::BaseTokenKind::Ident($crate::Keyword::Timeout)
 	};
 	(TO) => {
-		$crate::BaseTokenKind::KwTo
+		$crate::BaseTokenKind::Ident($crate::Keyword::To)
 	};
 	(TOKENIZERS) => {
-		$crate::BaseTokenKind::KwTokenizers
+		$crate::BaseTokenKind::Ident($crate::Keyword::Tokenizers)
 	};
 	(TOKEN) => {
-		$crate::BaseTokenKind::KwToken
+		$crate::BaseTokenKind::Ident($crate::Keyword::Token)
 	};
 	(TRANSACTION) => {
-		$crate::BaseTokenKind::KwTransaction
+		$crate::BaseTokenKind::Ident($crate::Keyword::Transaction)
 	};
 	(QUERY_TIMEOUT) => {
-		$crate::BaseTokenKind::KwQueryTimeout
+		$crate::BaseTokenKind::Ident($crate::Keyword::QueryTimeout)
 	};
 	(true) => {
-		$crate::BaseTokenKind::KwTrue
+		$crate::BaseTokenKind::Ident($crate::Keyword::True)
 	};
 	(TYPE) => {
-		$crate::BaseTokenKind::KwType
+		$crate::BaseTokenKind::Ident($crate::Keyword::Type)
 	};
 	(UNIQUE) => {
-		$crate::BaseTokenKind::KwUnique
+		$crate::BaseTokenKind::Ident($crate::Keyword::Unique)
 	};
 	(UNSET) => {
-		$crate::BaseTokenKind::KwUnset
+		$crate::BaseTokenKind::Ident($crate::Keyword::Unset)
 	};
 	(UPDATE) => {
-		$crate::BaseTokenKind::KwUpdate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Update)
 	};
 	(UPSERT) => {
-		$crate::BaseTokenKind::KwUpsert
+		$crate::BaseTokenKind::Ident($crate::Keyword::Upsert)
 	};
 	(UPPERCASE) => {
-		$crate::BaseTokenKind::KwUppercase
+		$crate::BaseTokenKind::Ident($crate::Keyword::Uppercase)
 	};
 	(URL) => {
-		$crate::BaseTokenKind::KwUrl
+		$crate::BaseTokenKind::Ident($crate::Keyword::Url)
 	};
 	(USE) => {
-		$crate::BaseTokenKind::KwUse
+		$crate::BaseTokenKind::Ident($crate::Keyword::Use)
 	};
 	(USER) => {
-		$crate::BaseTokenKind::KwUser
+		$crate::BaseTokenKind::Ident($crate::Keyword::User)
 	};
 	(VALUE) => {
-		$crate::BaseTokenKind::KwValue
+		$crate::BaseTokenKind::Ident($crate::Keyword::Value)
 	};
 	(VALUES) => {
-		$crate::BaseTokenKind::KwValues
+		$crate::BaseTokenKind::Ident($crate::Keyword::Values)
 	};
 	(VERSION) => {
-		$crate::BaseTokenKind::KwVersion
+		$crate::BaseTokenKind::Ident($crate::Keyword::Version)
 	};
 	(VS) => {
-		$crate::BaseTokenKind::KwVs
+		$crate::BaseTokenKind::Ident($crate::Keyword::Vs)
 	};
 	(WHEN) => {
-		$crate::BaseTokenKind::KwWhen
+		$crate::BaseTokenKind::Ident($crate::Keyword::When)
 	};
 	(WHERE) => {
-		$crate::BaseTokenKind::KwWhere
+		$crate::BaseTokenKind::Ident($crate::Keyword::Where)
 	};
 	(WITH) => {
-		$crate::BaseTokenKind::KwWith
+		$crate::BaseTokenKind::Ident($crate::Keyword::With)
 	};
 	(ALLINSIDE) => {
-		$crate::BaseTokenKind::KwAllInside
+		$crate::BaseTokenKind::Ident($crate::Keyword::AllInside)
 	};
 	(ANDKW) => {
-		$crate::BaseTokenKind::KwAndKw
+		$crate::BaseTokenKind::Ident($crate::Keyword::AndKw)
 	};
 	(ANYINSIDE) => {
-		$crate::BaseTokenKind::KwAnyInside
+		$crate::BaseTokenKind::Ident($crate::Keyword::AnyInside)
 	};
 	(INSIDE) => {
-		$crate::BaseTokenKind::KwInside
+		$crate::BaseTokenKind::Ident($crate::Keyword::Inside)
 	};
 	(INTERSECTS) => {
-		$crate::BaseTokenKind::KwIntersects
+		$crate::BaseTokenKind::Ident($crate::Keyword::Intersects)
 	};
 	(JSON) => {
-		$crate::BaseTokenKind::KwJson
+		$crate::BaseTokenKind::Ident($crate::Keyword::Json)
 	};
 	(NONEINSIDE) => {
-		$crate::BaseTokenKind::KwNoneInside
+		$crate::BaseTokenKind::Ident($crate::Keyword::NoneInside)
 	};
 	(NOTINSIDE) => {
-		$crate::BaseTokenKind::KwNotInside
+		$crate::BaseTokenKind::Ident($crate::Keyword::NotInside)
 	};
 	(OR) => {
-		$crate::BaseTokenKind::KwOrKw
+		$crate::BaseTokenKind::Ident($crate::Keyword::OrKw)
 	};
 	(OUTSIDE) => {
-		$crate::BaseTokenKind::KwOutside
+		$crate::BaseTokenKind::Ident($crate::Keyword::Outside)
 	};
 	(NOT) => {
-		$crate::BaseTokenKind::KwNot
+		$crate::BaseTokenKind::Ident($crate::Keyword::Not)
 	};
 	(AND) => {
-		$crate::BaseTokenKind::KwAnd
+		$crate::BaseTokenKind::Ident($crate::Keyword::And)
 	};
 	(COLLATE) => {
-		$crate::BaseTokenKind::KwCollate
+		$crate::BaseTokenKind::Ident($crate::Keyword::Collate)
 	};
 	(CONTAINSALL) => {
-		$crate::BaseTokenKind::KwContainsAll
+		$crate::BaseTokenKind::Ident($crate::Keyword::ContainsAll)
 	};
 	(CONTAINSANY) => {
-		$crate::BaseTokenKind::KwContainsAny
+		$crate::BaseTokenKind::Ident($crate::Keyword::ContainsAny)
 	};
 	(CONTAINSNONE) => {
-		$crate::BaseTokenKind::KwContainsNone
+		$crate::BaseTokenKind::Ident($crate::Keyword::ContainsNone)
 	};
 	(CONTAINSNOT) => {
-		$crate::BaseTokenKind::KwContainsNot
+		$crate::BaseTokenKind::Ident($crate::Keyword::ContainsNot)
 	};
 	(CONTAINS) => {
-		$crate::BaseTokenKind::KwContains
+		$crate::BaseTokenKind::Ident($crate::Keyword::Contains)
 	};
 	(IN) => {
-		$crate::BaseTokenKind::KwIn
+		$crate::BaseTokenKind::Ident($crate::Keyword::In)
 	};
 	(OUT) => {
-		$crate::BaseTokenKind::KwOut
+		$crate::BaseTokenKind::Ident($crate::Keyword::Out)
 	};
 	(NORMAL) => {
-		$crate::BaseTokenKind::KwNormal
+		$crate::BaseTokenKind::Ident($crate::Keyword::Normal)
 	};
 
 	// Types
 	(ANY) => {
-		$crate::BaseTokenKind::KwAny
+		$crate::BaseTokenKind::Ident($crate::Keyword::Any)
 	};
 	(ARRAY) => {
-		$crate::BaseTokenKind::KwArray
+		$crate::BaseTokenKind::Ident($crate::Keyword::Array)
 	};
 	(GEOMETRY) => {
-		$crate::BaseTokenKind::KwGeometry
+		$crate::BaseTokenKind::Ident($crate::Keyword::Geometry)
 	};
 	(RECORD) => {
-		$crate::BaseTokenKind::KwRecord
+		$crate::BaseTokenKind::Ident($crate::Keyword::Record)
 	};
 	(BOOL) => {
-		$crate::BaseTokenKind::KwBool
+		$crate::BaseTokenKind::Ident($crate::Keyword::Bool)
 	};
 	(BYTES) => {
-		$crate::BaseTokenKind::KwBytes
+		$crate::BaseTokenKind::Ident($crate::Keyword::Bytes)
 	};
 	(DATETIME) => {
-		$crate::BaseTokenKind::KwDatetime
+		$crate::BaseTokenKind::Ident($crate::Keyword::Datetime)
 	};
 	(DECIMAL) => {
-		$crate::BaseTokenKind::KwDecimal
+		$crate::BaseTokenKind::Ident($crate::Keyword::Decimal)
 	};
 	(DURATION) => {
-		$crate::BaseTokenKind::KwDuration
+		$crate::BaseTokenKind::Ident($crate::Keyword::Duration)
 	};
 	(FLOAT) => {
-		$crate::BaseTokenKind::KwFloat
+		$crate::BaseTokenKind::Ident($crate::Keyword::Float)
 	};
 	(INT) => {
-		$crate::BaseTokenKind::KwInt
+		$crate::BaseTokenKind::Ident($crate::Keyword::Int)
 	};
 	(NUMBER) => {
-		$crate::BaseTokenKind::KwNumber
+		$crate::BaseTokenKind::Ident($crate::Keyword::Number)
 	};
 	(OBJECT) => {
-		$crate::BaseTokenKind::KwObject
+		$crate::BaseTokenKind::Ident($crate::Keyword::Object)
 	};
 	(REGEX) => {
-		$crate::BaseTokenKind::KwRegex
+		$crate::BaseTokenKind::Ident($crate::Keyword::Regex)
 	};
 	(STRING) => {
-		$crate::BaseTokenKind::KwString
+		$crate::BaseTokenKind::Ident($crate::Keyword::String)
 	};
 	(UUID) => {
-		$crate::BaseTokenKind::KwUuid
+		$crate::BaseTokenKind::Ident($crate::Keyword::Uuid)
 	};
 	(ULID) => {
-		$crate::BaseTokenKind::KwUlid
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ulid)
 	};
 	(RAND) => {
-		$crate::BaseTokenKind::KwRand
+		$crate::BaseTokenKind::Ident($crate::Keyword::Rand)
 	};
 	(REFERENCES) => {
-		$crate::BaseTokenKind::KwReferences
+		$crate::BaseTokenKind::Ident($crate::Keyword::References)
 	};
 	(FEATURE) => {
-		$crate::BaseTokenKind::KwFeature
+		$crate::BaseTokenKind::Ident($crate::Keyword::Feature)
 	};
 	(LINE) => {
-		$crate::BaseTokenKind::KwLine
+		$crate::BaseTokenKind::Ident($crate::Keyword::Line)
 	};
 	(POINT) => {
-		$crate::BaseTokenKind::KwPoint
+		$crate::BaseTokenKind::Ident($crate::Keyword::Point)
 	};
 	(POLYGON) => {
-		$crate::BaseTokenKind::KwPolygon
+		$crate::BaseTokenKind::Ident($crate::Keyword::Polygon)
 	};
 	(MULTIPOINT) => {
-		$crate::BaseTokenKind::KwMultiPoint
+		$crate::BaseTokenKind::Ident($crate::Keyword::MultiPoint)
 	};
 	(MULTILINE) => {
-		$crate::BaseTokenKind::KwMultiLine
+		$crate::BaseTokenKind::Ident($crate::Keyword::MultiLine)
 	};
 	(MULTIPOLYGON) => {
-		$crate::BaseTokenKind::KwMultiPolygon
+		$crate::BaseTokenKind::Ident($crate::Keyword::MultiPolygon)
 	};
 	(COLLECT) => {
-		$crate::BaseTokenKind::KwCollect
+		$crate::BaseTokenKind::Ident($crate::Keyword::Collect)
 	};
 	(COLLECTION) => {
-		$crate::BaseTokenKind::KwCollection
+		$crate::BaseTokenKind::Ident($crate::Keyword::Collection)
 	};
 	(FILE) => {
-		$crate::BaseTokenKind::KwFile
+		$crate::BaseTokenKind::Ident($crate::Keyword::File)
 	};
 
 	// Languages
 	(ARABIC) => {
-		$crate::BaseTokenKind::KwArabic
+		$crate::BaseTokenKind::Ident($crate::Keyword::Arabic)
 	};
 	(DANISH) => {
-		$crate::BaseTokenKind::KwDanish
+		$crate::BaseTokenKind::Ident($crate::Keyword::Danish)
 	};
 	(DUTCH) => {
-		$crate::BaseTokenKind::KwDutch
+		$crate::BaseTokenKind::Ident($crate::Keyword::Dutch)
 	};
 	(ENGLISH) => {
-		$crate::BaseTokenKind::KwEnglish
+		$crate::BaseTokenKind::Ident($crate::Keyword::English)
 	};
 	(FINISH) => {
-		$crate::BaseTokenKind::KwFinnish
+		$crate::BaseTokenKind::Ident($crate::Keyword::Finnish)
 	};
 	(FRANCH) => {
-		$crate::BaseTokenKind::KwFrench
+		$crate::BaseTokenKind::Ident($crate::Keyword::French)
 	};
 	(GERMAN) => {
-		$crate::BaseTokenKind::KwGerman
+		$crate::BaseTokenKind::Ident($crate::Keyword::German)
 	};
 	(GREEK) => {
-		$crate::BaseTokenKind::KwGreek
+		$crate::BaseTokenKind::Ident($crate::Keyword::Greek)
 	};
 	(HUNGRARIAN) => {
-		$crate::BaseTokenKind::KwHungarian
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hungarian)
 	};
 	(ITALIAN) => {
-		$crate::BaseTokenKind::KwItalian
+		$crate::BaseTokenKind::Ident($crate::Keyword::Italian)
 	};
 	(NORWEGIAN) => {
-		$crate::BaseTokenKind::KwNorwegian
+		$crate::BaseTokenKind::Ident($crate::Keyword::Norwegian)
 	};
 	(PORTUGUESE) => {
-		$crate::BaseTokenKind::KwPortuguese
+		$crate::BaseTokenKind::Ident($crate::Keyword::Portuguese)
 	};
 	(ROMANIAN) => {
-		$crate::BaseTokenKind::KwRomanian
+		$crate::BaseTokenKind::Ident($crate::Keyword::Romanian)
 	};
 	(RUSSIAN) => {
-		$crate::BaseTokenKind::KwRussian
+		$crate::BaseTokenKind::Ident($crate::Keyword::Russian)
 	};
 	(SPANISH) => {
-		$crate::BaseTokenKind::KwSpanish
+		$crate::BaseTokenKind::Ident($crate::Keyword::Spanish)
 	};
 	(SWEDISH) => {
-		$crate::BaseTokenKind::KwSwedish
+		$crate::BaseTokenKind::Ident($crate::Keyword::Swedish)
 	};
 	(TAMIL) => {
-		$crate::BaseTokenKind::KwTamil
+		$crate::BaseTokenKind::Ident($crate::Keyword::Tamil)
 	};
 	(TURKISH) => {
-		$crate::BaseTokenKind::KwTurkish
+		$crate::BaseTokenKind::Ident($crate::Keyword::Turkish)
 	};
 
 	// Algorithms
 	(EDDSA) => {
-		$crate::BaseTokenKind::KwEdDSA
+		$crate::BaseTokenKind::Ident($crate::Keyword::EdDSA)
 	};
 	(ES256) => {
-		$crate::BaseTokenKind::KwEs256
+		$crate::BaseTokenKind::Ident($crate::Keyword::Es256)
 	};
 	(ES384) => {
-		$crate::BaseTokenKind::KwEs384
+		$crate::BaseTokenKind::Ident($crate::Keyword::Es384)
 	};
 	(ES512) => {
-		$crate::BaseTokenKind::KwEs512
+		$crate::BaseTokenKind::Ident($crate::Keyword::Es512)
 	};
 	(HS256) => {
-		$crate::BaseTokenKind::KwHs256
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hs256)
 	};
 	(HS384) => {
-		$crate::BaseTokenKind::KwHs384
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hs384)
 	};
 	(HS512) => {
-		$crate::BaseTokenKind::KwHs512
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hs512)
 	};
 	(PS256) => {
-		$crate::BaseTokenKind::KwPs256
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ps256)
 	};
 	(PS384) => {
-		$crate::BaseTokenKind::KwPs384
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ps384)
 	};
 	(PS512) => {
-		$crate::BaseTokenKind::KwPs512
+		$crate::BaseTokenKind::Ident($crate::Keyword::Ps512)
 	};
 	(RS256) => {
-		$crate::BaseTokenKind::KwRs256
+		$crate::BaseTokenKind::Ident($crate::Keyword::Rs256)
 	};
 	(RS384) => {
-		$crate::BaseTokenKind::KwRs384
+		$crate::BaseTokenKind::Ident($crate::Keyword::Rs384)
 	};
 	(RS512) => {
-		$crate::BaseTokenKind::KwRs512
+		$crate::BaseTokenKind::Ident($crate::Keyword::Rs512)
 	};
 
 	// Distance
 	(CHEBYSHEV) => {
-		$crate::BaseTokenKind::KwChebyshev
+		$crate::BaseTokenKind::Ident($crate::Keyword::Chebyshev)
 	};
 	(COSINE) => {
-		$crate::BaseTokenKind::KwCosine
+		$crate::BaseTokenKind::Ident($crate::Keyword::Cosine)
 	};
 	(EUCLIDEAN) => {
-		$crate::BaseTokenKind::KwEuclidean
+		$crate::BaseTokenKind::Ident($crate::Keyword::Euclidean)
 	};
 	(JACCARD) => {
-		$crate::BaseTokenKind::KwJaccard
+		$crate::BaseTokenKind::Ident($crate::Keyword::Jaccard)
 	};
 	(HAMMING) => {
-		$crate::BaseTokenKind::KwHamming
+		$crate::BaseTokenKind::Ident($crate::Keyword::Hamming)
 	};
 	(MANHATTAN) => {
-		$crate::BaseTokenKind::KwManhattan
+		$crate::BaseTokenKind::Ident($crate::Keyword::Manhattan)
 	};
 	(MINKOWSKI) => {
-		$crate::BaseTokenKind::KwMinkowski
+		$crate::BaseTokenKind::Ident($crate::Keyword::Minkowski)
 	};
 	(PEARSON) => {
-		$crate::BaseTokenKind::KwPearson
+		$crate::BaseTokenKind::Ident($crate::Keyword::Pearson)
 	};
 
 	// VectorTypes
 	(F64) => {
-		$crate::BaseTokenKind::KwF64
+		$crate::BaseTokenKind::Ident($crate::Keyword::F64)
 	};
 	(F32) => {
-		$crate::BaseTokenKind::KwF32
+		$crate::BaseTokenKind::Ident($crate::Keyword::F32)
 	};
 	(I64) => {
-		$crate::BaseTokenKind::KwI64
+		$crate::BaseTokenKind::Ident($crate::Keyword::I64)
 	};
 	(I32) => {
-		$crate::BaseTokenKind::KwI32
+		$crate::BaseTokenKind::Ident($crate::Keyword::I32)
 	};
 	(I16) => {
-		$crate::BaseTokenKind::KwI16
+		$crate::BaseTokenKind::Ident($crate::Keyword::I16)
 	};
 
 	// HTTP methods
 	(GET) => {
-		$crate::BaseTokenKind::KwGet
+		$crate::BaseTokenKind::Ident($crate::Keyword::Get)
 	};
 	(POST) => {
-		$crate::BaseTokenKind::KwPost
+		$crate::BaseTokenKind::Ident($crate::Keyword::Post)
 	};
 	(PUT) => {
-		$crate::BaseTokenKind::KwPut
+		$crate::BaseTokenKind::Ident($crate::Keyword::Put)
 	};
 	(TRACE) => {
-		$crate::BaseTokenKind::KwTrace
+		$crate::BaseTokenKind::Ident($crate::Keyword::Trace)
 	};
 }

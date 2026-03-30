@@ -129,7 +129,7 @@ async fn parse_prime_type(parser: &mut Parser<'_, '_>) -> ParseResult<ast::Prime
 								span: key_peek.span,
 							})
 						}
-						x if x.is_identifier() => parser.parse_sync()?,
+						BaseTokenKind::Ident(_) => parser.parse_sync()?,
 						_ => return Err(parser.unexpected("an object key")),
 					};
 					let _ = parser.expect(T![:])?;

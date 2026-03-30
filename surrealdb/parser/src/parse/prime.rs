@@ -118,7 +118,7 @@ impl Parse for ast::Object {
 				let obj = parse_object_continue(parser, start.span).await?;
 				Ok(obj)
 			}
-			x if x.is_identifier() => {
+			BaseTokenKind::Ident(_) => {
 				let obj = parse_object_continue(parser, start.span).await?;
 				Ok(obj)
 			}
@@ -142,7 +142,7 @@ pub async fn parse_object_like(parser: &mut Parser<'_, '_>) -> ParseResult<Expr>
 			}
 			parser.parse_enter().await?
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			if let Some(T![:]) = parser.peek1()?.map(|x| x.token) {
 				// Has to be object.
 				let obj = parse_object_continue(parser, start.span).await?;
@@ -278,7 +278,7 @@ async fn parse_object_continue(
 			let p = parser.slice(next.span).to_owned();
 			parser.push_set(p)
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			let _ = parser.next();
 			parser.unescape_ident(next)?
 		}
@@ -315,7 +315,7 @@ async fn parse_object_continue(
 					let _ = parser.next();
 					parser.unescape_str_push(peek)?
 				}
-				x if x.is_identifier() => {
+				BaseTokenKind::Ident(_) => {
 					let _ = parser.next();
 					parser.unescape_ident(peek)?
 				}
@@ -731,7 +731,7 @@ pub async fn parse_prime(parser: &mut Parser<'_, '_>) -> ParseResult<Expr> {
 			let path = parser.parse_sync()?;
 			Ok(Expr::Param(path))
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			let peek1 = parser.peek1()?;
 
 			if peek1.map(|x| x.token) == Some(T![:]) {

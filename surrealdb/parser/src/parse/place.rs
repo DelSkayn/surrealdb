@@ -70,7 +70,7 @@ impl Parse for ast::PresentPlace {
 								span,
 							});
 						}
-						x if x.is_identifier() => {
+						BaseTokenKind::Ident(_) => {
 							let name = parser.parse_sync()?;
 							let span = parser.span_since(start);
 							lhs = ast::PresentPlace::Member(ast::MemberPresentPlace {

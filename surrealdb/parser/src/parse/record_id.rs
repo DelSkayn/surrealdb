@@ -2,7 +2,7 @@ use std::ops::Bound;
 
 use ast::Spanned;
 use common::span::Span;
-use token::{BaseTokenKind, Joined, RecordIdKeyToken, T, Token};
+use token::{BaseTokenKind, Joined, Keyword, RecordIdKeyToken, T, Token};
 
 use crate::parse::ParseResult;
 use crate::parse::peek::peek_joined_starts_record_id_key;
@@ -15,8 +15,7 @@ fn parse_int_id(
 	int_span: Span,
 ) -> ParseResult<ast::RecordIdKey> {
 	if let Some(x) = parser.peek_joined()?
-		&& (x.token.is_identifier()
-			|| matches!(x.token, BaseTokenKind::NaN | BaseTokenKind::Infinity))
+		&& let BaseTokenKind::NaN | BaseTokenKind::Infinity | BaseTokenKind::Ident(_) = x.token
 	{
 		let _ = parser.next();
 		let mut span = int_span.extend(x.span);
@@ -97,7 +96,7 @@ pub async fn parse_peeked_record_id_key(
 			let uuid = parser.parse_sync()?;
 			ast::RecordIdKey::Uuid(uuid)
 		}
-		x if x.is_identifier() => {
+		BaseTokenKind::Ident(_) => {
 			let _ = parser.next();
 			let text = parser.unescape_ident(peek)?;
 			let i = parser.push(ast::StringLit {
@@ -191,7 +190,7 @@ pub fn peek_record_id_token(parser: &mut Parser<'_, '_>) -> ParseResult<Option<T
 			}
 			BaseTokenKind::Int
 		}
-		RecordIdKeyToken::Identifier => BaseTokenKind::Ident,
+		RecordIdKeyToken::Identifier => BaseTokenKind::Ident(Keyword::Identifier),
 	};
 
 	let token = Token {

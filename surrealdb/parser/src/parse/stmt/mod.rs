@@ -133,7 +133,7 @@ impl Parse for ast::Return {
 					// constrain the allowed syntax in the future without cause backwards
 					// incompatible changes
 					if let Some(t) = parser.peek()?
-						&& (t.token.is_identifier() || t.token == BaseTokenKind::Param)
+						&& let BaseTokenKind::Ident(_) | BaseTokenKind::Param = t.token
 					{
 						parser.parse_enter().await
 					} else {
@@ -632,7 +632,7 @@ impl Parse for ast::Relate {
 				let _ = parser.expect_closing_delimiter(BaseTokenKind::CloseParen, peek.span)?;
 				expr
 			}
-			x if x.is_identifier() => {
+			BaseTokenKind::Ident(_) => {
 				if let Some(peek1) = parser.peek1()?
 					&& let T![:] = peek1.token
 				{
@@ -858,7 +858,7 @@ impl Parse for ast::Select {
 					// constrain the allowed syntax in the future without cause backwards
 					// incompatible changes
 					if let Some(t) = parser.peek()?
-						&& (t.token.is_identifier() || t.token == BaseTokenKind::Param)
+						&& let BaseTokenKind::Ident(_) | BaseTokenKind::Param = t.token
 					{
 						parser.parse_enter().await
 					} else {
@@ -1018,7 +1018,7 @@ impl Parse for ast::Insert {
 			let peek = parser.peek_expect(expect)?;
 			let into = match peek.token {
 				BaseTokenKind::Param => InsertInto::Param(parser.parse_sync()?),
-				x if x.is_identifier() => InsertInto::Table(parser.parse_sync()?),
+				BaseTokenKind::Ident(_) => InsertInto::Table(parser.parse_sync()?),
 				_ => return Err(parser.unexpected(expect)),
 			};
 			Some(into)
