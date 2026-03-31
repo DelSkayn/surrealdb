@@ -427,7 +427,7 @@ pub async fn test_task(context: TestTaskContext) -> Result<()> {
 	Ok(())
 }
 
-/// Checks
+/// Checks for keys retained in the datastore after clean up which should not be there.
 async fn check_retained_keys(dbs: &Datastore) -> Result<Vec<Vec<u8>>> {
 	const ALLOWED_KEY_PREFIXES: &[&[u8]] = &[b"/!ni", b"/!nh", b"/!nd", b"/!ic"];
 
@@ -619,6 +619,8 @@ async fn run_test_with_dbs(
 		.context("failed to remove root config")?;
 	}
 
+	// If the test was not a clean test it should ensure that the datastore is reset for the next
+	// test.
 	if !set[id].config.env.as_ref().map(|x| x.clean).unwrap_or(false) {
 		let keys = check_retained_keys(dbs).await?;
 		if !keys.is_empty() {
