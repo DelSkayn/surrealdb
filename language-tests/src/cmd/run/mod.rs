@@ -11,6 +11,7 @@ use surrealdb_core::dbs::capabilities::ExperimentalTarget;
 use surrealdb_core::env::VERSION;
 use surrealdb_core::kvs::Datastore;
 use surrealdb_core::syn;
+use surrealdb_types::ToSql;
 use tokio::sync::mpsc::{self, Receiver, Sender, UnboundedReceiver, UnboundedSender};
 use tokio::{select, time};
 
@@ -426,6 +427,24 @@ pub async fn test_task(context: TestTaskContext) -> Result<()> {
 	Ok(())
 }
 
+/// Checks
+async fn check_retained_keys(dbs: &Datastore) -> Result<Vec<Vec<u8>>> {
+	const ALLOWED_KEY_PREFIXES: &[&[u8]] = &[b"/!ni", b"/!nh", b"/!nd", b"/!ic"];
+
+	let txn = dbs
+		.transaction(
+			surrealdb_core::kvs::TransactionType::Read,
+			surrealdb_core::kvs::LockType::Pessimistic,
+		)
+		.await?;
+	let res = txn.keysr(vec![0]..vec![0xff], 1000, 0, None).await?;
+	txn.cancel().await?;
+	Ok(res
+		.into_iter()
+		.filter(|key| !ALLOWED_KEY_PREFIXES.iter().any(|allowed| key.starts_with(allowed)))
+		.collect())
+}
+
 async fn run_test_with_dbs(
 	id: TestId,
 	set: &TestSet,
@@ -598,6 +617,13 @@ async fn run_test_with_dbs(
 		)
 		.await
 		.context("failed to remove root config")?;
+	}
+
+	if !set[id].config.env.as_ref().map(|x| x.clean).unwrap_or(false) {
+		let keys = check_retained_keys(dbs).await?;
+		if !keys.is_empty() {
+			return Ok(TestTaskResult::BadCleanup(keys));
+		}
 	}
 
 	match result {
